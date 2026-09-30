@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0,
+               maximum-scale=1.0, user-scalable=no">
+
+<title>포챔스 스카우트 시뮬레이터</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        margin: 0;
+        padding: 16px;
+        background: #f3f4f6;
+        color: #222;
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+    }
+
+    h1 {
+        margin: 0 0 16px;
+        font-size: 24px;
+    }
+
+    h2 {
+        margin: 0 0 12px;
+        font-size: 20px;
+    }
+
+    h3 {
+        margin: 0 0 10px;
+        font-size: 17px;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+        font: inherit;
+    }
+
+    button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        background: #333;
+        color: white;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    button:active {
+        transform: scale(0.98);
+    }
+
+    button.secondary {
+        background: #777;
+    }
+
+    button.danger {
+        background: #c0392b;
+    }
+
+    button.graduate {
+        background: #7b3f98;
+    }
+
+    button.green {
+        background: #218c5a;
+    }
+
+    button.small {
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+
+    .section {
+        background: white;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .controls label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    input[type="number"],
+    select {
+        padding: 9px;
+        border: 1px solid #ccc;
+        border-radius: 9px;
+        background: white;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 220px;
+        resize: vertical;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        line-height: 1.5;
+    }
+
+    .hint {
+        color: #666;
+        font-size: 13px;
+        margin-top: 8px;
+        line-height: 1.5;
+    }
+
+    .message {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #f1f1f1;
+        font-size: 14px;
+    }
+
+    /* 지닌 포켓몬 */
+
+    .party-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+    }
+
+    .party-slot {
+        min-height: 125px;
+        border: 2px dashed #bbb;
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #fafafa;
+    }
+
+    .party-slot.filled {
+        border-style: solid;
+        background: #fff;
+    }
+
+    .party-number {
+        font-size: 12px;
+        color: #888;
+    }
+
+    .party-name {
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        word-break: keep-all;
+    }
+
+    .party-form {
+        font-size: 12px;
+        text-align: center;
+        color: #666;
+    }
+
+    .party-actions {
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+    }
+
+    .party-actions button {
+        flex: 1;
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+
+    /* 스카우트 */
+
+    .scout-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+    }
+
+    .pokemon-card {
+        background: #fafafa;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 12px;
+        min-height: 135px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .pokemon-card:active {
+        cursor: grabbing;
+    }
+
+    .pokemon-card.shiny {
+        border: 2px solid #e0a100;
+        background: #fffbea;
+    }
+
+    .pokemon-name {
+        font-weight: bold;
+        font-size: 15px;
+        word-break: keep-all;
+    }
+
+    .pokemon-form {
+        color: #666;
+        font-size: 13px;
+        margin-top: 4px;
+        min-height: 18px;
+    }
+
+    .shiny {
+        color: #d18a00;
+        font-weight: bold;
+    }
+
+    .card-actions {
+        margin-top: 10px;
+    }
+
+    .card-actions button {
+        width: 100%;
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    /* 기록 */
+
+    .history-item {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+
+    .history-header {
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        background: #fafafa;
+    }
+
+    .history-title {
+        font-weight: bold;
+    }
+
+    .history-date {
+        font-size: 12px;
+        color: #777;
+    }
+
+    .history-body {
+        padding: 12px;
+        display: none;
+    }
+
+    .history-body.open {
+        display: block;
+    }
+
+    .history-pokemon-list {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 7px;
+    }
+
+    .history-pokemon {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 8px;
+        font-size: 13px;
+        background: white;
+    }
+
+    .history-pokemon button {
+        width: 100%;
+        margin-top: 6px;
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    /* 졸업 */
+
+    .graduated-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .graduated-item {
+        padding: 7px 10px;
+        border-radius: 20px;
+        background: #eee;
+        font-size: 13px;
+    }
+
+    .empty {
+        color: #888;
+        font-size: 14px;
+        padding: 8px 0;
+    }
+
+    @media (max-width: 800px) {
+        .party-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .scout-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .history-pokemon-list {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 450px) {
+        body {
+            padding: 10px;
+        }
+
+        .party-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .scout-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🎟️ 포챔스 스카우트 시뮬레이터</h1>
+
+
+<!-- =========================
+     지닌 포켓몬
+========================= -->
+
+<div class="section">
+
+    <h2>👜 지닌 포켓몬</h2>
+
+    <div id="partyGrid" class="party-grid"></div>
+
+    <div class="hint">
+        스카우트 포켓몬을 여기로 드래그하거나
+        「지닌 포켓몬에 넣기」 버튼을 누르면 됩니다.
+    </div>
+
+</div>
+
+
+<!-- =========================
+     스카우트
+========================= -->
+
+<div class="section">
+
+    <h2>🎲 스카우트</h2>
+
+    <div class="controls">
+
+        <button id="scoutButton">
+            새로운 스카우트
+        </button>
+
+        <label>
+            이로치 확률 1 /
+            <input
+                id="shinyRate"
+                type="number"
+                min="1"
+                value="4096"
+                style="width:90px;"
+            >
+        </label>
+
+        <button id="saveRateButton" class="secondary">
+            확률 저장
+        </button>
+
+    </div>
+
+    <div class="controls" style="margin-top:10px;">
+
+        <label>
+            넣을 슬롯:
+            <select id="targetSlot">
+                <option value="-1">빈 슬롯 자동</option>
+                <option value="0">1번 슬롯</option>
+                <option value="1">2번 슬롯</option>
+                <option value="2">3번 슬롯</option>
+                <option value="3">4번 슬롯</option>
+                <option value="4">5번 슬롯</option>
+                <option value="5">6번 슬롯</option>
+            </select>
+        </label>
+
+    </div>
+
+    <div id="scoutMessage"></div>
+
+    <div
+        id="currentScout"
+        class="scout-grid"
+        style="margin-top:14px;"
+    ></div>
+
+</div>
+
+
+<!-- =========================
+     스카우트 기록
+========================= -->
+
+<div class="section">
+
+    <h2>📚 스카우트 기록</h2>
+
+    <div class="controls">
+        <button
+            id="clearHistoryButton"
+            class="danger small"
+        >
+            전체 기록 삭제
+        </button>
+    </div>
+
+    <div
+        id="historyList"
+        style="margin-top:12px;"
+    ></div>
+
+</div>
+
+
+<!-- =========================
+     졸업 리스트
+========================= -->
+
+<div class="section">
+
+    <h2>🎓 졸업 리스트</h2>
+
+    <div class="hint">
+        졸업한 포켓몬은 새로운 스카우트에서 다시 등장하지 않습니다.
+        「졸업 리스트 초기화」를 누르면 다시 등장할 수 있습니다.
+    </div>
+
+    <div
+        id="graduatedList"
+        class="graduated-list"
+        style="margin-top:12px;"
+    ></div>
+
+    <button
+        id="resetGraduatedButton"
+        class="graduate"
+        style="margin-top:12px;"
+    >
+        졸업 리스트 초기화
+    </button>
+
+</div>
+
+
+<!-- =========================
+     포켓몬 목록
+========================= -->
+
+<div class="section">
+
+    <h2>📝 포켓몬 목록</h2>
+
+    <textarea id="pokemonListInput"></textarea>
+
+    <div class="hint">
+        한 줄에 하나씩 입력하세요.<br>
+        폼이 있는 경우에는 <b>종족명 | 폼명</b> 형식으로 입력합니다.<br><br>
+
+        예시:<br>
+        피카츄<br>
+        리자몽<br>
+        트리미앙 | 하트컷<br>
+        트리미앙 | 별모양컷<br>
+        시비꼬 | A폼<br>
+        시비꼬 | B폼
+    </div>
+
+    <div class="controls" style="margin-top:10px;">
+        <button id="saveListButton" class="green">
+            포켓몬 목록 저장
+        </button>
+    </div>
+
+    <div id="listMessage"></div>
+
+</div>
+
+
+<script>
+"use strict";
+
+/* =========================================================
+   저장 데이터
+========================================================= */
+
+const STORAGE_KEY = "pokemon_scout_simulator_v6";
+
+let pokemonList = [];
+let scoutHistory = [];
+let party = [null, null, null, null, null, null];
+let graduated = [];
+let shinyRate = 4096;
+
+let currentScoutId = null;
+
+
+/* =========================================================
+   기본 목록
+   실제 사용 시 화면의 목록에 본인의 전체 목록을 붙여넣으면 됨.
+========================================================= */
+
+const DEFAULT_LIST = `
+피카츄
+라이츄
+파이리
+리자드
+리자몽
+꼬부기
+어니부기
+거북왕
+이상해씨
+이상해풀
+이상해꽃
+팬텀
+갸라도스
+메타몽
+이브이
+샤미드
+쥬피썬더
+부스터
+트리미앙 | 하트컷
+트리미앙 | 별모양컷
+트리미앙 | 카부키컷
+트리미앙 | 퀸컷
+`;
+
+
+/* =========================================================
+   유틸
+========================================================= */
+
+function createId() {
+    return Date.now().toString(36) +
+        Math.random().toString(36).slice(2);
+}
+
+
+function randomItem(array) {
+    return array[
+        Math.floor(Math.random() * array.length)
+    ];
+}
+
+
+/*
+    목록 한 줄을
+    {
+        species: "트리미앙",
+        form: "하트컷"
+    }
+    형태로 변환
+*/
+
+function parsePokemonList(text) {
+
+    const lines = text
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+    const result = [];
+
+    for (const line of lines) {
+
+        const parts = line.split("|");
+
+        const species = parts[0].trim();
+
+        if (!species) {
+            continue;
+        }
+
+        const form = parts
+            .slice(1)
+            .join("|")
+            .trim();
+
+        result.push({
+            species: species,
+            form: form
+        });
+    }
+
+    return result;
+}
+
+
+/* =========================================================
+   저장 / 불러오기
+========================================================= */
+
+function saveData() {
+
+    const data = {
+        pokemonList,
+        scoutHistory,
+        party,
+        graduated,
+        shinyRate,
+        currentScoutId
+    };
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(data)
+    );
+}
+
+
+function loadData() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+
+            pokemonList =
+                parsePokemonList(DEFAULT_LIST);
+
+            document.getElementById(
+                "pokemonListInput"
+            ).value = DEFAULT_LIST.trim();
+
+            return;
+        }
+
+        const data = JSON.parse(saved);
+
+        pokemonList =
+            Array.isArray(data.pokemonList)
+                ? data.pokemonList
+                : parsePokemonList(DEFAULT_LIST);
+
+        scoutHistory =
+            Array.isArray(data.scoutHistory)
+                ? data.scoutHistory
+                : [];
+
+        party =
+            Array.isArray(data.party) &&
+            data.party.length === 6
+                ? data.party
+                : [null, null, null, null, null, null];
+
+        graduated =
+            Array.isArray(data.graduated)
+                ? data.graduated
+                : [];
+
+        shinyRate =
+            Number(data.shinyRate) > 0
+                ? Number(data.shinyRate)
+                : 4096;
+
+        currentScoutId =
+            data.currentScoutId || null;
+
+        document.getElementById(
+            "pokemonListInput"
+        ).value =
+            pokemonList
+                .map(p => p.form
+                    ? `${p.species} | ${p.form}`
+                    : p.species
+                )
+                .join("\n");
+
+        document.getElementById(
+            "shinyRate"
+        ).value = shinyRate;
+
+    } catch (error) {
+
+        console.error(error);
+
+        pokemonList =
+            parsePokemonList(DEFAULT_LIST);
+
+        document.getElementById(
+            "pokemonListInput"
+        ).value = DEFAULT_LIST.trim();
+    }
+}
+
+
+/* =========================================================
+   졸업 여부
+========================================================= */
+
+function isGraduated(species) {
+
+    return graduated.includes(species);
+}
+
+
+/* =========================================================
+   새로운 스카우트
+========================================================= */
+
+function performScout() {
+
+    /*
+        같은 종족끼리 그룹화
+
+        예:
+        트리미앙 | 하트컷
+        트리미앙 | 별모양컷
+
+        → 트리미앙 하나의 그룹
+    */
+
+    const speciesMap = new Map();
+
+    for (const pokemon of pokemonList) {
+
+        if (isGraduated(pokemon.species)) {
+            continue;
+        }
+
+        if (!speciesMap.has(pokemon.species)) {
+            speciesMap.set(
+                pokemon.species,
+                []
+            );
+        }
+
+        speciesMap
+            .get(pokemon.species)
+            .push(pokemon);
+    }
+
+
+    if (speciesMap.size < 10) {
+
+        showMessage(
+            `현재 스카우트 가능한 종족이 ${speciesMap.size}종입니다. 10종 이상 필요합니다.`,
+            true
+        );
+
+        return;
+    }
+
+
+    /*
+        Map의 종족을 배열로 만든 뒤
+        랜덤으로 10종 선택
+    */
+
+    const availableSpecies =
+        Array.from(speciesMap.keys());
+
+    const selected = [];
+
+    for (let i = 0; i < 10; i++) {
+
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                availableSpecies.length
+            );
+
+        const species =
+            availableSpecies.splice(
+                randomIndex,
+                1
+            )[0];
+
+        const forms =
+            speciesMap.get(species);
+
+        const chosen =
+            randomItem(forms);
+
+        /*
+            이로치 판정
+        */
+
+        const isShiny =
+            Math.floor(
+                Math.random() * shinyRate
+            ) === 0;
+
+        selected.push({
+            species: chosen.species,
+            form: chosen.form,
+            shiny: isShiny
+        });
+    }
+
+
+    const record = {
+        id: createId(),
+        createdAt: new Date().toISOString(),
+        pokemon: selected
+    };
+
+    /*
+        새 스카우트는 기존 기록을 덮어쓰지 않음
+    */
+
+    scoutHistory.unshift(record);
+
+    currentScoutId = record.id;
+
+    saveData();
+
+    renderAll();
+
+    showMessage(
+        "새로운 10마리가 스카우트되었습니다.",
+        false
+    );
+}
+
+
+/* =========================================================
+   스카우트 결과 표시
+========================================================= */
+
+function renderCurrentScout() {
+
+    const container =
+        document.getElementById("currentScout");
+
+    container.innerHTML = "";
+
+    if (!currentScoutId) {
+
+        container.innerHTML =
+            '<div class="empty">아직 스카우트 결과가 없습니다.</div>';
+
+        return;
+    }
+
+    const record =
+        scoutHistory.find(
+            r => r.id === currentScoutId
+        );
+
+    if (!record) {
+
+        container.innerHTML =
+            '<div class="empty">현재 스카우트 결과를 찾을 수 없습니다.</div>';
+
+        return;
+    }
+
+    record.pokemon.forEach(
+        (pokemon, index) => {
+
+            const card =
+                createPokemonCard(
+                    pokemon,
+                    record.id,
+                    index
+                );
+
+            container.appendChild(card);
+        }
+    );
+}
+
+
+/* =========================================================
+   포켓몬 카드
+========================================================= */
+
+function createPokemonCard(
+    pokemon,
+    recordId,
+    pokemonIndex
+) {
+
+    const card =
+        document.createElement("div");
+
+    card.className =
+        "pokemon-card" +
+        (pokemon.shiny ? " shiny" : "");
+
+    /*
+        드래그 시작
+    */
+
+    card.draggable = true;
+
+    card.addEventListener(
+        "dragstart",
+        event => {
+
+            event.dataTransfer.setData(
+                "text/plain",
+                JSON.stringify({
+                    recordId: recordId,
+                    pokemonIndex: pokemonIndex
+                })
+            );
+        }
+    );
+
+
+    const name =
+        document.createElement("div");
+
+    name.className = "pokemon-name";
+
+    name.textContent =
+        pokemon.species;
+
+    card.appendChild(name);
+
+
+    const form =
+        document.createElement("div");
+
+    form.className =
+        "pokemon-form";
+
+    form.textContent =
+        pokemon.form || "";
+
+    card.appendChild(form);
+
+
+    if (pokemon.shiny) {
+
+        const shiny =
+            document.createElement("div");
+
+        shiny.className = "shiny";
+
+        shiny.textContent =
+            "✨ 이로치";
+
+        card.appendChild(shiny);
+    }
+
+
+    const actions =
+        document.createElement("div");
+
+    actions.className =
+        "card-actions";
+
+
+    const addButton =
+        document.createElement("button");
+
+    addButton.className =
+        "green";
+
+    addButton.textContent =
+        "지닌 포켓몬에 넣기";
+
+    addButton.addEventListener(
+        "click",
+        () => {
+
+            addPokemonToParty(
+                recordId,
+                pokemonIndex
+            );
+        }
+    );
+
+    actions.appendChild(addButton);
+
+    card.appendChild(actions);
+
+    return card;
+}
+
+
+/* =========================================================
+   파티 추가
+========================================================= */
+
+function addPokemonToParty(
+    recordId,
+    pokemonIndex
+) {
+
+    const record =
+        scoutHistory.find(
+            r => r.id === recordId
+        );
+
+    if (!record) {
+        return;
+    }
+
+    const pokemon =
+        record.pokemon[pokemonIndex];
+
+    if (!pokemon) {
+        return;
+    }
+
+
+    const target =
+        Number(
+            document.getElementById(
+                "targetSlot"
+            ).value
+        );
+
+
+    let slotIndex = target;
+
+
+    /*
+        -1이면 첫 번째 빈 슬롯
+    */
+
+    if (slotIndex === -1) {
+
+        slotIndex =
+            party.findIndex(
+                slot => slot === null
+            );
+
+        if (slotIndex === -1) {
+
+            showMessage(
+                "빈 파티 슬롯이 없습니다. 슬롯을 선택해서 교체하거나 먼저 포켓몬을 방출하세요.",
+                true
+            );
+
+            return;
+        }
+    }
+
+
+    /*
+        같은 포켓몬을 파티에 넣는 것은 허용.
+        필요하면 나중에 중복 방지 기능을 추가할 수 있음.
+    */
+
+    party[slotIndex] = {
+        species: pokemon.species,
+        form: pokemon.form,
+        shiny: pokemon.shiny
+    };
+
+    saveData();
+
+    renderParty();
+
+    showMessage(
+        `${pokemon.species}${pokemon.form ? " (" + pokemon.form + ")" : ""}을(를) ${slotIndex + 1}번 슬롯에 넣었습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   파티 표시
+========================================================= */
+
+function renderParty() {
+
+    const container =
+        document.getElementById("partyGrid");
+
+    container.innerHTML = "";
+
+    party.forEach(
+        (pokemon, index) => {
+
+            const slot =
+                document.createElement("div");
+
+            slot.className =
+                "party-slot" +
+                (pokemon ? " filled" : "");
+
+
+            const number =
+                document.createElement("div");
+
+            number.className =
+                "party-number";
+
+            number.textContent =
+                `${index + 1}번 슬롯`;
+
+            slot.appendChild(number);
+
+
+            if (!pokemon) {
+
+                const empty =
+                    document.createElement("div");
+
+                empty.className =
+                    "empty";
+
+                empty.textContent =
+                    "비어 있음";
+
+                slot.appendChild(empty);
+
+            } else {
+
+                /*
+                    파티 슬롯을 드롭 대상으로 지정
+                */
+
+                slot.addEventListener(
+                    "dragover",
+                    event => {
+                        event.preventDefault();
+                    }
+                );
+
+                slot.addEventListener(
+                    "drop",
+                    event => {
+
+                        event.preventDefault();
+
+                        try {
+
+                            const data =
+                                JSON.parse(
+                                    event.dataTransfer.getData(
+                                        "text/plain"
+                                    )
+                                );
+
+                            moveScoutPokemonToSpecificSlot(
+                                data.recordId,
+                                data.pokemonIndex,
+                                index
+                            );
+
+                        } catch (error) {
+
+                            console.error(error);
+                        }
+                    }
+                );
+
+
+                const name =
+                    document.createElement("div");
+
+                name.className =
+                    "party-name";
+
+                name.textContent =
+                    pokemon.species;
+
+                slot.appendChild(name);
+
+
+                const form =
+                    document.createElement("div");
+
+                form.className =
+                    "party-form";
+
+                form.textContent =
+                    pokemon.form || "";
+
+                slot.appendChild(form);
+
+
+                if (pokemon.shiny) {
+
+                    const shiny =
+                        document.createElement("div");
+
+                    shiny.className =
+                        "shiny";
+
+                    shiny.textContent =
+                        "✨ 이로치";
+
+                    slot.appendChild(shiny);
+                }
+
+
+                const actions =
+                    document.createElement("div");
+
+                actions.className =
+                    "party-actions";
+
+
+                /*
+                    방출
+                */
+
+                const releaseButton =
+                    document.createElement("button");
+
+                releaseButton.className =
+                    "danger";
+
+                releaseButton.textContent =
+                    "방출";
+
+                releaseButton.addEventListener(
+                    "click",
+                    () => {
+
+                        releasePokemon(index);
+                    }
+                );
+
+                actions.appendChild(
+                    releaseButton
+                );
+
+
+                /*
+                    졸업
+                */
+
+                const graduateButton =
+                    document.createElement("button");
+
+                graduateButton.className =
+                    "graduate";
+
+                graduateButton.textContent =
+                    "졸업";
+
+                graduateButton.addEventListener(
+                    "click",
+                    () => {
+
+                        graduatePokemon(index);
+                    }
+                );
+
+                actions.appendChild(
+                    graduateButton
+                );
+
+
+                slot.appendChild(actions);
+            }
+
+            container.appendChild(slot);
+        }
+    );
+}
+
+
+/* =========================================================
+   드래그로 특정 슬롯에 넣기
+========================================================= */
+
+function moveScoutPokemonToSpecificSlot(
+    recordId,
+    pokemonIndex,
+    slotIndex
+) {
+
+    const record =
+        scoutHistory.find(
+            r => r.id === recordId
+        );
+
+    if (!record) {
+        return;
+    }
+
+    const pokemon =
+        record.pokemon[pokemonIndex];
+
+    if (!pokemon) {
+        return;
+    }
+
+    party[slotIndex] = {
+        species: pokemon.species,
+        form: pokemon.form,
+        shiny: pokemon.shiny
+    };
+
+    saveData();
+
+    renderParty();
+
+    showMessage(
+        `${pokemon.species}을(를) ${slotIndex + 1}번 슬롯으로 이동했습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   방출
+========================================================= */
+
+function releasePokemon(slotIndex) {
+
+    const pokemon =
+        party[slotIndex];
+
+    if (!pokemon) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            `${pokemon.species}을(를) 방출할까요?\n\n방출하면 다시 스카우트에서 등장할 수 있습니다.`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    party[slotIndex] = null;
+
+    saveData();
+
+    renderParty();
+
+    showMessage(
+        `${pokemon.species}을(를) 방출했습니다. 다시 스카우트에 등장할 수 있습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   졸업
+========================================================= */
+
+function graduatePokemon(slotIndex) {
+
+    const pokemon =
+        party[slotIndex];
+
+    if (!pokemon) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            `${pokemon.species}을(를) 졸업시킬까요?\n\n졸업하면 이후 새로운 스카우트에서 등장하지 않습니다.`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    /*
+        같은 종족은 한 번만 졸업 리스트에 등록
+    */
+
+    if (!graduated.includes(pokemon.species)) {
+
+        graduated.push(
+            pokemon.species
+        );
+    }
+
+
+    party[slotIndex] = null;
+
+    saveData();
+
+    renderAll();
+
+    showMessage(
+        `${pokemon.species}이(가) 졸업했습니다. 이후 새로운 스카우트에서는 등장하지 않습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   졸업 리스트 표시
+========================================================= */
+
+function renderGraduated() {
+
+    const container =
+        document.getElementById(
+            "graduatedList"
+        );
+
+    container.innerHTML = "";
+
+    if (graduated.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">졸업한 포켓몬이 없습니다.</div>';
+
+        return;
+    }
+
+
+    graduated.forEach(
+        species => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "graduated-item";
+
+            item.textContent =
+                "🎓 " + species;
+
+            container.appendChild(item);
+        }
+    );
+}
+
+
+/* =========================================================
+   졸업 리스트 초기화
+========================================================= */
+
+function resetGraduated() {
+
+    if (graduated.length === 0) {
+
+        showMessage(
+            "현재 졸업 리스트가 비어 있습니다.",
+            false
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            "졸업 리스트를 모두 초기화할까요?\n\n초기화하면 졸업했던 포켓몬들이 다시 새로운 스카우트에 등장할 수 있습니다."
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    graduated = [];
+
+    saveData();
+
+    renderGraduated();
+
+    showMessage(
+        "졸업 리스트를 초기화했습니다.",
+        false
+    );
+}
+
+
+/* =========================================================
+   스카우트 기록 표시
+========================================================= */
+
+function renderHistory() {
+
+    const container =
+        document.getElementById(
+            "historyList"
+        );
+
+    container.innerHTML = "";
+
+
+    if (scoutHistory.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">저장된 스카우트 기록이 없습니다.</div>';
+
+        return;
+    }
+
+
+    scoutHistory.forEach(
+        (record, recordIndex) => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "history-item";
+
+
+            const header =
+                document.createElement("div");
+
+            header.className =
+                "history-header";
+
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "history-title";
+
+            title.textContent =
+                `스카우트 #${scoutHistory.length - recordIndex}`;
+
+            header.appendChild(title);
+
+
+            const date =
+                document.createElement("div");
+
+            date.className =
+                "history-date";
+
+            date.textContent =
+                formatDate(record.createdAt);
+
+            header.appendChild(date);
+
+
+            const body =
+                document.createElement("div");
+
+            body.className =
+                "history-body";
+
+
+            const pokemonList =
+                document.createElement("div");
+
+            pokemonList.className =
+                "history-pokemon-list";
+
+
+            record.pokemon.forEach(
+                (pokemon, pokemonIndex) => {
+
+                    const p =
+                        document.createElement("div");
+
+                    p.className =
+                        "history-pokemon";
+
+
+                    const name =
+                        document.createElement("div");
+
+                    name.style.fontWeight =
+                        "bold";
+
+                    name.textContent =
+                        pokemon.species;
+
+                    p.appendChild(name);
+
+
+                    if (pokemon.form) {
+
+                        const form =
+                            document.createElement("div");
+
+                        form.style.color =
+                            "#777";
+
+                        form.textContent =
+                            pokemon.form;
+
+                        p.appendChild(form);
+                    }
+
+
+                    if (pokemon.shiny) {
+
+                        const shiny =
+                            document.createElement("div");
+
+                        shiny.className =
+                            "shiny";
+
+                        shiny.textContent =
+                            "✨ 이로치";
+
+                        p.appendChild(shiny);
+                    }
+
+
+                    const addButton =
+                        document.createElement("button");
+
+                    addButton.className =
+                        "green";
+
+                    addButton.textContent =
+                        "파티에 넣기";
+
+                    addButton.addEventListener(
+                        "click",
+                        () => {
+
+                            addPokemonToParty(
+                                record.id,
+                                pokemonIndex
+                            );
+                        }
+                    );
+
+                    p.appendChild(addButton);
+
+                    pokemonList.appendChild(p);
+                }
+            );
+
+
+            body.appendChild(
+                pokemonList
+            );
+
+
+            header.addEventListener(
+                "click",
+                () => {
+
+                    body.classList.toggle(
+                        "open"
+                    );
+                }
+            );
+
+
+            item.appendChild(header);
+            item.appendChild(body);
+
+            container.appendChild(item);
+        }
+    );
+}
+
+
+/* =========================================================
+   날짜
+========================================================= */
+
+function formatDate(dateString) {
+
+    const date =
+        new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    return date.toLocaleString(
+        "ko-KR",
+        {
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+}
+
+
+/* =========================================================
+   전체 기록 삭제
+========================================================= */
+
+function clearHistory() {
+
+    if (scoutHistory.length === 0) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            "모든 스카우트 기록을 삭제할까요?\n\n지닌 포켓몬과 졸업 리스트는 삭제되지 않습니다."
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    scoutHistory = [];
+
+    currentScoutId = null;
+
+    saveData();
+
+    renderCurrentScout();
+    renderHistory();
+
+    showMessage(
+        "스카우트 기록을 모두 삭제했습니다.",
+        false
+    );
+}
+
+
+/* =========================================================
+   포켓몬 목록 저장
+========================================================= */
+
+function savePokemonList() {
+
+    const input =
+        document.getElementById(
+            "pokemonListInput"
+        ).value;
+
+    const parsed =
+        parsePokemonList(input);
+
+
+    if (parsed.length < 10) {
+
+        showListMessage(
+            "최소 10마리 이상의 포켓몬을 입력해주세요.",
+            true
+        );
+
+        return;
+    }
+
+
+    pokemonList = parsed;
+
+    saveData();
+
+    showListMessage(
+        `${pokemonList.length}개의 포켓몬 항목을 저장했습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   이로치 확률 저장
+========================================================= */
+
+function saveShinyRate() {
+
+    const input =
+        document.getElementById(
+            "shinyRate"
+        );
+
+    const value =
+        Number(input.value);
+
+
+    if (!Number.isInteger(value) || value < 1) {
+
+        showMessage(
+            "이로치 확률은 1 이상의 정수여야 합니다.",
+            true
+        );
+
+        input.value = shinyRate;
+
+        return;
+    }
+
+
+    shinyRate = value;
+
+    saveData();
+
+    showMessage(
+        `이로치 확률을 1/${shinyRate}로 저장했습니다.`,
+        false
+    );
+}
+
+
+/* =========================================================
+   메시지
+========================================================= */
+
+function showMessage(
+    message,
+    isError
+) {
+
+    const element =
+        document.getElementById(
+            "scoutMessage"
+        );
+
+    element.className =
+        "message";
+
+    element.style.color =
+        isError
+            ? "#b00020"
+            : "#222";
+
+    element.textContent =
+        message;
+}
+
+
+function showListMessage(
+    message,
+    isError
+) {
+
+    const element =
+        document.getElementById(
+            "listMessage"
+        );
+
+    element.className =
+        "message";
+
+    element.style.color =
+        isError
+            ? "#b00020"
+            : "#222";
+
+    element.textContent =
+        message;
+}
+
+
+/* =========================================================
+   전체 렌더링
+========================================================= */
+
+function renderAll() {
+
+    renderParty();
+    renderCurrentScout();
+    renderHistory();
+    renderGraduated();
+}
+
+
+/* =========================================================
+   이벤트 연결
+========================================================= */
+
+function init() {
+
+    loadData();
+
+
+    document
+        .getElementById("scoutButton")
+        .addEventListener(
+            "click",
+            performScout
+        );
+
+
+    document
+        .getElementById("saveListButton")
+        .addEventListener(
+            "click",
+            savePokemonList
+        );
+
+
+    document
+        .getElementById("saveRateButton")
+        .addEventListener(
+            "click",
+            saveShinyRate
+        );
+
+
+    document
+        .getElementById("clearHistoryButton")
+        .addEventListener(
+            "click",
+            clearHistory
+        );
+
+
+    document
+        .getElementById("resetGraduatedButton")
+        .addEventListener(
+            "click",
+            resetGraduated
+        );
+
+
+    /*
+        파티 슬롯 전체에 드롭 가능하게 만들기 위해
+        초기 렌더링 후 각 슬롯에 이벤트를 추가하는 대신
+        renderParty에서 처리함.
+    */
+
+
+    /*
+        현재 파티가 없는 상태에서도
+        스카우트 카드를 드래그할 수 있도록
+        빈 슬롯에도 drop 이벤트가 필요함.
+    */
+
+    setupEmptyPartyDrop();
+
+
+    renderAll();
+}
+
+
+/* =========================================================
+   빈 파티 슬롯 드롭
+========================================================= */
+
+function setupEmptyPartyDrop() {
+
+    const originalRenderParty =
+        renderParty;
+
+    /*
+        기존 renderParty를 감싸서
+        빈 슬롯에도 드롭 이벤트를 붙인다.
+    */
+
+    window.renderParty =
+        function() {
+
+            originalRenderParty();
+
+            const slots =
+                document.querySelectorAll(
+                    ".party-slot"
+                );
+
+            slots.forEach(
+                (slot, index) => {
+
+                    slot.addEventListener(
+                        "dragover",
+                        event => {
+                            event.preventDefault();
+                        }
+                    );
+
+                    slot.addEventListener(
+                        "drop",
+                        event => {
+
+                            event.preventDefault();
+
+                            try {
+
+                                const data =
+                                    JSON.parse(
+                                        event.dataTransfer.getData(
+                                            "text/plain"
+                                        )
+                                    );
+
+                                moveScoutPokemonToSpecificSlot(
+                                    data.recordId,
+                                    data.pokemonIndex,
+                                    index
+                                );
+
+                            } catch (error) {
+
+                                console.error(error);
+                            }
+                        }
+                    );
+                }
+            );
+        };
+}
+
+
+/* =========================================================
+   시작
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
+
+</script>
+
+</body>
+</html>
