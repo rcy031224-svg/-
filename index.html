@@ -264,6 +264,19 @@
         border: 2px solid #e0a100;
         background: #fffbea;
     }
+    
+    .pokemon-card.random-selected {
+    border: 3px solid #e0a100;
+    background: #fff4c2;
+    box-shadow: 0 0 0 2px rgba(224, 161, 0, 0.2);
+	}
+
+	.random-selected-label {
+    margin-top: 6px;
+    font-weight: bold;
+    color: #b06f00;
+    text-align: center;
+	}
 
     .pokemon-name {
         font-weight: bold;
@@ -432,6 +445,14 @@
             disabled
         >↷</button>
 
+        <button
+            id="fullResetButton"
+            class="danger"
+            style="height:42px; margin-left:4px;"
+        >
+            완전 초기화
+        </button>
+
     </div>
 
     <div class="hint">
@@ -467,22 +488,20 @@
 
     <h2>🎲 스카우트</h2>
 
-    <div class="controls">
+<div class="controls">
 
-        <button id="scoutButton">
-            새로운 스카우트
-        </button>
+    <button id="scoutButton">
+        새로운 스카우트
+    </button>
 
-        <label>
-            색이 다른 포켓몬 확률 1 /
-            <input
-                id="shinyRate"
-                type="number"
-                min="1"
-                value="4096"
-                style="width:90px;"
-            >
-        </label>
+    <button
+        id="randomPickButton"
+        class="green"
+    >
+        🎯 10마리 중 1마리 추첨
+    </button>
+
+    <label>
 
         <button id="saveRateButton" class="secondary">
             확률 저장
@@ -574,18 +593,6 @@
 
     <br>
 
-    <button
-        id="fullResetButton"
-        class="danger"
-        style="margin-top:8px;"
-    >
-        완전 초기화
-    </button>
-
-    <div class="hint">
-        완전 초기화는 지닌 포켓몬과 졸업 리스트를 모두 초기화합니다.
-        스카우트 기록과 포켓몬 목록은 유지됩니다.
-    </div>
 
 </div>
 
@@ -663,6 +670,8 @@ let graduated = [];
 let shinyRate = 4096;
 
 let currentScoutId = null;
+
+let randomSelectedIndex = null;
 
 
 /* =========================================================
@@ -1517,7 +1526,8 @@ function performScout() {
 
     currentScoutId =
         record.id;
-
+	
+    randomSelectedIndex = null;
 
     /*
         중요:
@@ -1532,6 +1542,64 @@ function performScout() {
 
     showMessage(
         "새로운 10마리가 스카우트되었습니다.",
+        false
+    );
+}
+
+function randomPickFromCurrentScout() {
+
+    if (!currentScoutId) {
+
+        showMessage(
+            "먼저 새로운 스카우트를 진행해주세요.",
+            true
+        );
+
+        return;
+    }
+
+
+    const record =
+        scoutHistory.find(
+            r =>
+                r.id ===
+                currentScoutId
+        );
+
+
+    if (
+        !record ||
+        !record.pokemon ||
+        record.pokemon.length === 0
+    ) {
+
+        showMessage(
+            "추첨할 스카우트 결과가 없습니다.",
+            true
+        );
+
+        return;
+    }
+
+
+    randomSelectedIndex =
+        Math.floor(
+            Math.random() *
+            record.pokemon.length
+        );
+
+
+    renderCurrentScout();
+
+
+    const selected =
+        record.pokemon[
+            randomSelectedIndex
+        ];
+
+
+    showMessage(
+        `🎯 ${randomSelectedIndex + 1}번 — ${selected.species}${selected.form ? " (" + selected.form + ")" : ""}이(가) 선택되었습니다.`,
         false
     );
 }
@@ -1613,12 +1681,18 @@ function createPokemonCard(
 
 
     card.className =
-        "pokemon-card" +
-        (
-            pokemon.shiny
-                ? " shiny"
-                : ""
-        );
+    "pokemon-card" +
+    (
+        pokemon.shiny
+            ? " shiny"
+            : ""
+    ) +
+    (
+        recordId === currentScoutId &&
+        pokemonIndex === randomSelectedIndex
+            ? " random-selected"
+            : ""
+    );
 
 
     /*
@@ -1696,6 +1770,27 @@ function createPokemonCard(
             shiny
         );
     }
+    
+    if (
+    recordId === currentScoutId &&
+    pokemonIndex === randomSelectedIndex
+) {
+
+    const selectedLabel =
+        document.createElement(
+            "div"
+        );
+
+    selectedLabel.className =
+        "random-selected-label";
+
+    selectedLabel.textContent =
+        "🎯 선택됨";
+
+    card.appendChild(
+        selectedLabel
+    );
+}
 
 
     const actions =
@@ -2934,6 +3029,15 @@ function init() {
             "click",
             performScout
         );
+        
+        document
+    .getElementById(
+        "randomPickButton"
+    )
+    .addEventListener(
+        "click",
+        randomPickFromCurrentScout
+    );
 
 
     document
