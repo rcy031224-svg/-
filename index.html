@@ -572,7 +572,6 @@ function addDirectPokemonToParty() {
         `${species}${form ? " (" + form + ")" : ""}을(를) ${slotIndex + 1}번 슬롯에 직접 추가했습니다.`,
         false
     );
-}4qjs
 function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function parseList(text){return text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{let p=line.split("|");return{species:p[0].trim(),form:p.slice(1).join("|").trim()}}).filter(x=>x.species)}
