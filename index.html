@@ -16,7 +16,16 @@
 
 <div class="section"><h2>🏁 챌린지</h2><div id="challengePanel"></div></div>
 
-<div class="section"><h2>👜 지닌 포켓몬</h2><div id="partyGrid" class="party-grid"></div><div id="rerollPanel"></div><div class="hint">스카우트 포켓몬을 드래그하거나 「지닌 포켓몬에 넣기」를 누르세요.</div></div>
+<div class="section">
+   <h2>👜 지닌 포켓몬</h2>
+
+<div class="controls" style="margin-bottom:10px;">
+    <button id="directPokemonButton" class="green">
+        🎁 직접 포켓몬 선택
+    </button>
+</div>
+
+<div id="partyGrid" class="party-grid"></div>
 
 <div class="section"><h2>🎲 스카우트</h2><div class="controls"><button id="scoutButton">새로운 스카우트</button><button id="randomPickButton" class="green">🎯 10마리 중 1마리 추첨</button></div><div class="controls" style="margin-top:9px"><label>현재 레귤레이션 <select id="currentRegulation"></select></label><label>넣을 슬롯 <select id="targetSlot"><option value="-1">빈 슬롯 자동</option><option value="0">1번</option><option value="1">2번</option><option value="2">3번</option><option value="3">4번</option><option value="4">5번</option><option value="5">6번</option></select></label></div><div class="controls" style="margin-top:9px"><label>색이 다른 포켓몬 확률 1 / <input id="shinyRate" type="number" min="1" value="4096" style="width:90px"></label><button id="saveRateButton" class="secondary">확률 저장</button></div><div id="scoutMessage"></div><div id="currentScout" class="scout-grid" style="margin-top:12px"></div></div>
 
@@ -325,6 +334,245 @@ let currentRegId="base";
 let activeChallenge=null,challengeHistory=[];
 let undoStack=[],redoStack=[],restoringHistory=false;
 const $=id=>document.getElementById(id);
+/* =========================================================
+   직접 포켓몬 선택
+========================================================= */
+
+function openDirectPokemonModal() {
+
+    const modal =
+        document.getElementById(
+            "directPokemonModal"
+        );
+
+    const select =
+        document.getElementById(
+            "directPokemonSelect"
+        );
+
+    select.innerHTML = "";
+
+    /*
+        현재 포켓몬 목록에서
+        종족을 한 번씩만 표시
+    */
+
+    const speciesList =
+        [...new Set(
+            pokemonList.map(
+                pokemon =>
+                    pokemon.species
+            )
+        )];
+
+    speciesList.sort(
+        (a, b) =>
+            a.localeCompare(b, "ko")
+    );
+
+    speciesList.forEach(
+        species => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                species;
+
+            option.textContent =
+                species;
+
+            select.appendChild(
+                option
+            );
+        }
+    );
+
+    updateDirectPokemonForms();
+
+    document
+        .getElementById(
+            "directPokemonShiny"
+        )
+        .checked = false;
+
+    document
+        .getElementById(
+            "directPokemonSlot"
+        )
+        .value = "-1";
+
+    modal.style.display =
+        "block";
+}
+
+
+function closeDirectPokemonModal() {
+
+    document
+        .getElementById(
+            "directPokemonModal"
+        )
+        .style.display =
+        "none";
+}
+
+
+function updateDirectPokemonForms() {
+
+    const species =
+        document
+            .getElementById(
+                "directPokemonSelect"
+            )
+            .value;
+
+    const formSelect =
+        document
+            .getElementById(
+                "directPokemonForm"
+            );
+
+    formSelect.innerHTML = "";
+
+    const forms =
+        pokemonList.filter(
+            pokemon =>
+                pokemon.species ===
+                species
+        );
+
+    /*
+        폼이 없는 일반 포켓몬
+    */
+
+    if (
+        forms.length === 0
+    ) {
+        return;
+    }
+
+    forms.forEach(
+        pokemon => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                pokemon.form || "";
+
+            option.textContent =
+                pokemon.form ||
+                "기본 모습";
+
+            formSelect.appendChild(
+                option
+            );
+        }
+    );
+}
+
+
+function addDirectPokemonToParty() {
+
+    const species =
+        document
+            .getElementById(
+                "directPokemonSelect"
+            )
+            .value;
+
+    const form =
+        document
+            .getElementById(
+                "directPokemonForm"
+            )
+            .value;
+
+    const shiny =
+        document
+            .getElementById(
+                "directPokemonShiny"
+            )
+            .checked;
+
+    const target =
+        Number(
+            document
+                .getElementById(
+                    "directPokemonSlot"
+                )
+                .value
+        );
+
+    /*
+        챌린지 중복 규칙은
+        이후 챌린지 코드와 연결해서
+        여기서 검사하면 됨.
+    */
+
+    let slotIndex =
+        target;
+
+    if (
+        slotIndex === -1
+    ) {
+
+        slotIndex =
+            party.findIndex(
+                slot =>
+                    slot === null
+            );
+
+        if (
+            slotIndex === -1
+        ) {
+
+            showMessage(
+                "빈 파티 슬롯이 없습니다. 슬롯을 선택하거나 먼저 포켓몬을 방출하세요.",
+                true
+            );
+
+            return;
+        }
+    }
+
+    /*
+        기존 파티 추가와 동일하게
+        Undo 대상에 포함
+    */
+
+    beginStateChange();
+
+    party[slotIndex] = {
+
+        species:
+            species,
+
+        form:
+            form,
+
+        shiny:
+            shiny
+    };
+
+    saveData();
+
+    renderAll();
+
+    updateUndoRedoButtons();
+
+    closeDirectPokemonModal();
+
+    showMessage(
+        `${species}${form ? " (" + form + ")" : ""}을(를) ${slotIndex + 1}번 슬롯에 직접 추가했습니다.`,
+        false
+    );
+}4qjs
 function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function parseList(text){return text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{let p=line.split("|");return{species:p[0].trim(),form:p.slice(1).join("|").trim()}}).filter(x=>x.species)}
@@ -396,7 +644,156 @@ function fmt(x){let d=new Date(x);return Number.isNaN(d.getTime())?"":d.toLocale
 function msg(t,e=false){let x=$("scoutMessage");x.className="message";x.style.color=e?"#b00020":"#222";x.textContent=t}
 function listMsg(t,e=false){let x=$("listMessage");x.className="message";x.style.color=e?"#b00020":"#222";x.textContent=t}
 function renderAll(){renderChallenge();renderParty();renderScout();renderHistory();renderGraduated();renderRegulation();renderSpecial();renderSettings();stats();buttons();if(activeChallenge&&activeChallenge.status!=="ended")renderReroll()}
-function init(){load();$("scoutButton").onclick=performScout;$("randomPickButton").onclick=randomPick;$("saveRateButton").onclick=saveRate;$("saveListButton").onclick=saveList;$("clearHistoryButton").onclick=clearHistory;$("resetGraduatedButton").onclick=resetGraduated;$("fullResetButton").onclick=fullReset;$("undoButton").onclick=undo;$("redoButton").onclick=redo;$("currentRegulation").onchange=e=>{if(activeChallenge&&activeChallenge.status!=="ended"){e.target.value=activeChallenge.regulationId;return}currentRegId=e.target.value;save();renderRegulation()};$("regSelect").onchange=e=>{currentRegId=e.target.value;renderRegulation()};$("saveRegButton").onclick=saveReg;$("newRegButton").onclick=newReg;$("deleteRegButton").onclick=deleteReg;$("saveSpecialButton").onclick=saveSpecial;$("partyDuplicate").onchange=saveSettings;$("graduationScope").onchange=saveSettings;$("includeSpecial").onchange=saveSettings;renderAll();$("startChallengeButton")?.addEventListener("click",startChallenge);}
+function init(){
+    document
+    .getElementById(
+        "directPokemonButton"
+    )
+    .addEventListener(
+        "click",
+        openDirectPokemonModal
+    );
+
+
+document
+    .getElementById(
+        "directPokemonSelect"
+    )
+    .addEventListener(
+        "change",
+        updateDirectPokemonForms
+    );
+
+
+document
+    .getElementById(
+        "cancelDirectPokemonButton"
+    )
+    .addEventListener(
+        "click",
+        closeDirectPokemonModal
+    );
+
+
+document
+    .getElementById(
+        "confirmDirectPokemonButton"
+    )
+    .addEventListener(
+        "click",
+        addDirectPokemonToParty
+    );
+    load();$("scoutButton").onclick=performScout;$("randomPickButton").onclick=randomPick;$("saveRateButton").onclick=saveRate;$("saveListButton").onclick=saveList;$("clearHistoryButton").onclick=clearHistory;$("resetGraduatedButton").onclick=resetGraduated;$("fullResetButton").onclick=fullReset;$("undoButton").onclick=undo;$("redoButton").onclick=redo;$("currentRegulation").onchange=e=>{if(activeChallenge&&activeChallenge.status!=="ended"){e.target.value=activeChallenge.regulationId;return}currentRegId=e.target.value;save();renderRegulation()};$("regSelect").onchange=e=>{currentRegId=e.target.value;renderRegulation()};$("saveRegButton").onclick=saveReg;$("newRegButton").onclick=newReg;$("deleteRegButton").onclick=deleteReg;$("saveSpecialButton").onclick=saveSpecial;$("partyDuplicate").onchange=saveSettings;$("graduationScope").onchange=saveSettings;$("includeSpecial").onchange=saveSettings;renderAll();$("startChallengeButton")?.addEventListener("click",startChallenge);}
 // renderChallenge() creates the start button dynamically, so delegate its click here.
 document.addEventListener("click",e=>{if(e.target&&e.target.id==="startChallengeButton")startChallenge()});document.addEventListener("DOMContentLoaded",init);
-</script></body></html>
+</script>
+<!-- =========================
+     직접 포켓몬 선택창
+========================= -->
+
+<div
+    id="directPokemonModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.45);
+        z-index:1000;
+        padding:20px;
+        overflow-y:auto;
+    "
+>
+    <div
+        style="
+            max-width:500px;
+            margin:40px auto;
+            background:white;
+            border-radius:16px;
+            padding:18px;
+            box-shadow:0 8px 30px rgba(0,0,0,0.2);
+        "
+    >
+
+        <h2>🎁 포켓몬 직접 선택</h2>
+
+        <div
+            class="controls"
+            style="margin-bottom:12px;"
+        >
+            <label style="width:100%;">
+                포켓몬:
+                <select
+                    id="directPokemonSelect"
+                    style="width:100%; margin-top:6px;"
+                ></select>
+            </label>
+        </div>
+
+        <div
+            class="controls"
+            style="margin-bottom:12px;"
+        >
+            <label style="width:100%;">
+                폼:
+                <select
+                    id="directPokemonForm"
+                    style="width:100%; margin-top:6px;"
+                ></select>
+            </label>
+        </div>
+
+        <div
+            class="controls"
+            style="margin-bottom:12px;"
+        >
+            <label>
+                <input
+                    type="checkbox"
+                    id="directPokemonShiny"
+                >
+                ✨ 색이 다른 포켓몬
+            </label>
+        </div>
+
+        <div
+            class="controls"
+            style="margin-bottom:14px;"
+        >
+            <label style="width:100%;">
+                넣을 슬롯:
+                <select
+                    id="directPokemonSlot"
+                    style="width:100%; margin-top:6px;"
+                >
+                    <option value="-1">
+                        빈 슬롯 자동
+                    </option>
+                    <option value="0">1번 슬롯</option>
+                    <option value="1">2번 슬롯</option>
+                    <option value="2">3번 슬롯</option>
+                    <option value="3">4번 슬롯</option>
+                    <option value="4">5번 슬롯</option>
+                    <option value="5">6번 슬롯</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="controls">
+            <button
+                id="cancelDirectPokemonButton"
+                class="secondary"
+            >
+                취소
+            </button>
+
+            <button
+                id="confirmDirectPokemonButton"
+                class="green"
+            >
+                지닌 포켓몬에 추가
+            </button>
+        </div>
+
+    </div>
+</div>
+</body></html>
