@@ -532,7 +532,7 @@ function addDirectPokemonToParty() {
             slotIndex === -1
         ) {
 
-            showMessage(
+            msg(
                 "빈 파티 슬롯이 없습니다. 슬롯을 선택하거나 먼저 포켓몬을 방출하세요.",
                 true
             );
@@ -568,10 +568,11 @@ function addDirectPokemonToParty() {
 
     closeDirectPokemonModal();
 
-    showMessage(
+    msg(
         `${species}${form ? " (" + form + ")" : ""}을(를) ${slotIndex + 1}번 슬롯에 직접 추가했습니다.`,
         false
     );
+   }
 function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function parseList(text){return text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{let p=line.split("|");return{species:p[0].trim(),form:p.slice(1).join("|").trim()}}).filter(x=>x.species)}
