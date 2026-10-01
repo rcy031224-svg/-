@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>포챔스 스카우트 시뮬레이터</title>
+<link rel="apple-touch-icon" href="icon.png"><link rel="icon" type="image/png" href="icon.png">
+<meta name="apple-mobile-web-app-title" content="포챔스 스카우트"><meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;padding:12px;background:#f3f4f6;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}h1{font-size:24px;margin:0 0 14px}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:14px 0 8px}button,input,select,textarea{font:inherit}button{border:0;border-radius:10px;padding:9px 13px;background:#333;color:#fff;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.97)}button:disabled{opacity:.35;cursor:default}button.secondary{background:#777}button.danger{background:#c0392b}button.graduate{background:#7b3f98}button.green{background:#218c5a}button.orange{background:#d17b00}button.small{padding:7px 10px;font-size:13px}.section{background:#fff;border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.controls label{display:flex;align-items:center;gap:6px}.hint{color:#666;font-size:13px;line-height:1.5;margin-top:7px}.message{margin-top:9px;padding:9px;border-radius:8px;background:#f1f1f1;font-size:14px}.history-controls{display:flex;gap:8px}.history-button{width:48px;height:42px;padding:0;font-size:25px;background:#444}.party-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.party-slot{min-height:150px;border:2px dashed #bbb;border-radius:12px;padding:7px;display:flex;flex-direction:column;justify-content:space-between;background:#fafafa}.party-slot.drag-over{border-color:#218c5a;background:#edf9f2}.party-slot.filled{border-style:solid;background:#fff}.party-number{font-size:12px;color:#888}.party-name{font-weight:bold;font-size:14px;text-align:center;word-break:keep-all}.party-form{font-size:12px;text-align:center;color:#666}.party-actions{display:flex;gap:4px}.party-actions button{flex:1;padding:6px 3px;font-size:11px}.battle-actions{display:flex;gap:4px;margin-top:6px}.battle-actions button{flex:1;padding:6px 3px;font-size:11px}.streak{font-size:11px;color:#b00020;text-align:center;margin-top:2px}.scout-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.pokemon-card{background:#fafafa;border:1px solid #ddd;border-radius:12px;padding:10px;min-height:145px;display:flex;flex-direction:column;justify-content:space-between;cursor:grab;user-select:none}.pokemon-card.shiny{border:2px solid #e0a100;background:#fffbea}.pokemon-card.random-selected{border:3px solid #e0a100;background:#fff4c2;box-shadow:0 0 0 2px rgba(224,161,0,.2)}.pokemon-name{font-weight:bold;font-size:15px;word-break:keep-all}.pokemon-form{color:#666;font-size:12px;min-height:17px;margin-top:3px}.shiny{color:#d18a00;font-weight:bold;font-size:12px}.random-selected-label{text-align:center;color:#b06f00;font-weight:bold;font-size:12px;margin-top:5px}.card-actions{margin-top:8px}.card-actions button{width:100%;font-size:12px;padding:7px}.history-item{border:1px solid #ddd;border-radius:10px;margin-bottom:8px;overflow:hidden}.history-header{padding:10px;display:flex;justify-content:space-between;align-items:center;background:#fafafa;cursor:pointer}.history-title{font-weight:bold}.history-date{font-size:12px;color:#777}.history-body{display:none;padding:10px}.history-body.open{display:block}.history-pokemon-list{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.history-pokemon{border:1px solid #ddd;border-radius:8px;padding:7px;font-size:12px;background:#fff}.history-pokemon button{width:100%;margin-top:5px;padding:6px;font-size:11px}.graduated-list,.tag-list{display:flex;flex-wrap:wrap;gap:6px}.graduated-item,.tag{padding:6px 9px;border-radius:20px;background:#eee;font-size:12px}.panel{border:1px solid #ddd;border-radius:12px;padding:10px;margin-top:10px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.field{display:flex;flex-direction:column;gap:5px}.field input,.field select,.field textarea,input[type=number],select{padding:8px;border:1px solid #ccc;border-radius:8px;background:#fff}.field textarea,textarea{width:100%;min-height:90px;resize:vertical;padding:10px;border:1px solid #ccc;border-radius:9px;line-height:1.45}.status{font-weight:bold}.status.run{color:#218c5a}.status.pause{color:#b06f00}.status.end{color:#555}.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.stat{background:#f5f5f5;border-radius:9px;padding:8px;text-align:center}.stat b{display:block;font-size:18px}.mission{border:1px solid #ddd;border-radius:10px;padding:10px;margin-bottom:7px}.mission-title{font-weight:bold}.mission-condition{font-size:13px;margin:4px 0;color:#555}.mission-effects{font-size:12px;color:#666}.mission-buttons{display:flex;gap:5px;margin-top:7px}.mission-buttons button{flex:1;padding:7px;font-size:12px}.tablelike{width:100%;border-collapse:collapse;font-size:13px}.tablelike td,.tablelike th{border-bottom:1px solid #eee;padding:6px;text-align:left}.collapse{display:none}.collapse.open{display:block}.notice{background:#fff8df;border:1px solid #efd58a;padding:9px;border-radius:9px;font-size:13px}.success{color:#218c5a}.fail{color:#b00020}.special{border-color:#b8860b;background:#fffaf0}.pending-target{border:2px solid #e0a100;background:#fff7d6;border-radius:10px;padding:9px;margin-top:9px}.empty{color:#888;font-size:13px;padding:7px 0}.mini{font-size:11px;color:#777}@media(max-width:800px){.party-grid{grid-template-columns:repeat(3,1fr)}.scout-grid{grid-template-columns:repeat(2,1fr)}.history-pokemon-list{grid-template-columns:repeat(2,1fr)}.stat-grid{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr 1fr}}@media(max-width:450px){body{padding:9px}.party-grid{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}.scout-grid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body>
+<h1>🎟️ 포챔스 스카우트 시뮬레이터</h1>
+
+<div class="section"><div class="history-controls"><button id="undoButton" class="history-button" disabled>↶</button><button id="redoButton" class="history-button" disabled>↷</button><button id="fullResetButton" class="danger">완전 초기화</button></div><div class="hint">↶ 실행 취소 / ↷ 다시 실행 · Undo/Redo는 지닌 포켓몬과 졸업 상태만 대상으로 합니다.</div></div>
+
+<div class="section"><h2>🏁 챌린지</h2><div id="challengePanel"></div></div>
+
+<div class="section"><h2>👜 지닌 포켓몬</h2><div id="partyGrid" class="party-grid"></div><div id="rerollPanel"></div><div class="hint">스카우트 포켓몬을 드래그하거나 「지닌 포켓몬에 넣기」를 누르세요.</div></div>
+
+<div class="section"><h2>🎲 스카우트</h2><div class="controls"><button id="scoutButton">새로운 스카우트</button><button id="randomPickButton" class="green">🎯 10마리 중 1마리 추첨</button></div><div class="controls" style="margin-top:9px"><label>현재 레귤레이션 <select id="currentRegulation"></select></label><label>넣을 슬롯 <select id="targetSlot"><option value="-1">빈 슬롯 자동</option><option value="0">1번</option><option value="1">2번</option><option value="2">3번</option><option value="3">4번</option><option value="4">5번</option><option value="5">6번</option></select></label></div><div class="controls" style="margin-top:9px"><label>색이 다른 포켓몬 확률 1 / <input id="shinyRate" type="number" min="1" value="4096" style="width:90px"></label><button id="saveRateButton" class="secondary">확률 저장</button></div><div id="scoutMessage"></div><div id="currentScout" class="scout-grid" style="margin-top:12px"></div></div>
+
+<div class="section"><h2>⚙️ 설정</h2><div class="grid2"><div class="field"><label>지닌 포켓몬 중복</label><select id="partyDuplicate"><option value="false">금지</option><option value="true">허용</option></select></div><div class="field"><label>졸업 범위</label><select id="graduationScope"><option value="species">종 전체</option><option value="form">해당 폼만</option></select></div><div class="field"><label>스카우트 풀</label><select id="includeSpecial"><option value="false">일반 포켓몬만</option><option value="true">일반 + 특수 포켓몬</option></select></div></div><div class="hint">10마리 스카우트 안에서 같은 종이 중복되는 것은 항상 금지됩니다. 설정의 「지닌 포켓몬 중복」은 이미 파티에 있는 포켓몬의 재등장 여부만 결정합니다.</div></div>
+
+<div class="section"><h2>📜 레귤레이션 관리</h2><div class="grid2"><div class="field"><label>레귤레이션 이름</label><input id="regName" placeholder="예: M-B"></div><div class="field"><label>편집할 레귤레이션</label><select id="regSelect"></select></div></div><div class="grid2" style="margin-top:9px"><div class="field"><label>추가 포켓몬</label><textarea id="regAdd" placeholder="한 줄에 하나 · 폼은 종 | 폼"></textarea></div><div class="field"><label>제외 종족</label><textarea id="regExclude" placeholder="한 줄에 하나씩 종족명을 입력"></textarea></div></div><div class="controls" style="margin-top:9px"><button id="newRegButton">새 레귤레이션</button><button id="saveRegButton" class="green">레귤레이션 저장</button><button id="deleteRegButton" class="danger">레귤레이션 삭제</button></div><div class="hint">레귤레이션은 서로 독립된 상태입니다. 챌린지를 시작하면 실제 스카우트 가능 풀을 저장해 두므로 이후 레귤레이션을 수정해도 진행 중/과거 챌린지의 풀이 바뀌지 않습니다.</div></div>
+
+<div class="section"><h2>✨ 특수 포켓몬 관리</h2><textarea id="specialInput" placeholder="한 줄에 하나 · 폼은 종 | 폼"></textarea><div class="controls" style="margin-top:8px"><button id="saveSpecialButton" class="green">특수 포켓몬 저장</button></div><div id="specialList" class="tag-list" style="margin-top:8px"></div><div class="hint">특수 포켓몬은 현재 일반 포켓몬과 같은 확률로 스카우트 풀에 들어갑니다. 특수 포켓몬별 별도 출현 확률은 아직 적용하지 않습니다.</div></div>
+
+<div class="section"><h2>📚 스카우트 기록</h2><button id="clearHistoryButton" class="danger small">전체 기록 삭제</button><div id="historyList" style="margin-top:10px"></div></div>
+
+<div class="section"><h2>🎓 졸업 리스트</h2><div class="hint">설정한 졸업 범위에 따라 새로운 스카우트에서 제외됩니다.</div><div id="graduatedList" class="graduated-list" style="margin-top:9px"></div><button id="resetGraduatedButton" class="graduate" style="margin-top:9px">졸업 리스트 초기화</button></div>
+
+<div class="section"><h2>📊 통계 / 챌린지 기록</h2><div id="statsPanel"></div></div>
+
+<div class="section"><h2>📝 포켓몬 목록</h2><textarea id="pokemonListInput"></textarea><div class="hint">한 줄에 하나씩 입력하세요. 폼이 있는 경우 <b>종족명 | 폼명</b> 형식입니다.</div><button id="saveListButton" class="green" style="margin-top:8px">포켓몬 목록 저장</button><div id="listMessage"></div></div>
+
+<script>
+"use strict";
+const STORAGE_KEY="pokemon_scout_simulator_v7";
+const DEFAULT_LIST=`다부니
+화강돌
+글레이시아
+강철톤
+메가니움
+나인테일
+장침바루
+나인테일 | 알로라
+이상해꽃
+팬텀
+찌르호크
+나무킹
+란쿨루스
+애써르 | 수컷
+이어롭
+아리아도스
+시비꼬 | 블루 페더
+마폭시
+로토무 | 커트
+모크나이퍼 | 히스이
+스코빌런
+바오키
+망나뇽
+골루그
+플라제스 | 노란꽃
+트리미앙 | 마담컷
+켄타로스
+파이어로
+루가루암 | 한밤중
+쥬피썬더
+보만다
+인텔리레온
+포트데스 | 위작
+메타몽
+피카츄
+렌트라
+짜랑고우거
+킬라플로르
+일레도리자드
+마휘핑 | 밀키민트
+시비꼬 | 그린 페더
+조로아크
+펌킨인 | 특대과종
+로토무 | 워시
+후딘
+켄타로스 | 컴벳종
+대쓰여너 | 수컷
+토대부기
+님피아
+맘모꾸리
+엘레이드
+마휘핑 | 밀키말차
+드닐레이브
+데스니칸
+메타그로스
+라플레시아
+우츠보트
+마기라스
+코터스
+툰베어
+레파르다스
+비비용
+견고라스
+로토무 | 히트
+파오리
+더시마사리
+블로스터
+파밀리쥐 | 네 식구
+킬가르도
+입치트
+마휘핑 | 캐러멜믹스
+브리두라스
+미끄래곤 | 히스이
+요가램
+바리톱스
+루가루암 | 황혼
+아머까오
+냐오닉스 | 암컷
+고릴타
+야도킹
+단지래플
+루카리오
+펌킨인 | 중과종
+마휘핑 | 루비믹스
+브리무움
+마스카나
+치렁
+플라제스 | 파란꽃
+번치코
+갑주무사
+블레이범 | 히스이
+거북왕
+꿀꺽몬
+로토무 | 스핀
+한카리아스
+곤율거니
+할비룡
+스트린더 | 하이
+모단단게
+더스트나
+펌킨인 | 소과종
+오롱털
+마휘핑 | 트리플믹스
+파르토
+라이츄
+미끄래곤
+파비코리
+야도란
+그우린차 | 걸작
+폭타
+메더 | 갸라르
+모크나이퍼
+쁘사이저
+아쿠스타
+대검귀 | 히스이
+켄타로스 | 블레이즈종
+픽시
+로토무
+저리더프
+거대코뿌리
+독침붕
+헤라크로스
+왕큰부리
+크레베이스
+푸크린
+대로트
+갸라도스
+따라큐
+독개굴
+글라이온
+칼라마네로
+포푸니라
+블래키
+루가루암 | 한낮
+마임꽁꽁
+앱솔
+염뉴트
+키키링
+찌리베리
+전룡
+돌핀맨
+로즈레이드
+보르그
+크레베이스 | 히스이
+데덴네
+야나키
+저승갓숭
+로토무 | 프로스트
+프레프티르
+대쓰여너 | 암컷
+보스로라
+드래펄트
+마임맨
+얼음귀신
+플라제스 | 오렌지색꽃
+사마자르
+밀로틱
+시비꼬 | 옐로 페더
+몰드류
+드래캄
+야도란 | 갸라르
+깜까미
+대검귀
+야도킹 | 갸라르
+폭슬라이
+염무왕
+깨비물거미
+포트데스 | 진작
+타부자고
+나이킹
+트리미앙 | 젠틀컷
+루차불
+켄타로스 | 워터종
+리피아
+부스터
+펌킨인 | 대과종
+펜드라
+메더
+마휘핑 | 밀키레몬
+페르시온 | 알로라
+윈디
+아보크
+화염레오
+두드리짱
+마피티프
+마휘핑 | 밀키솔트
+에브이
+잠만보
+웨이니발
+페르시온
+괴력몬
+콜로솔트
+누리레느
+조로아크 | 히스이
+부란다
+엘풍
+음번
+샤미드
+브리가론
+어흥염
+눈설왕
+다크펫
+카디나르마
+대도각참
+케오퍼스
+리자몽
+엠페르트
+장크로다일
+클레스퍼트라
+신비록
+스트린더 | 로우
+포푸니크
+파라블레이즈
+시비꼬 | 화이트 페더
+램펄드
+에몽가
+플라제스 | 빨간꽃
+썬더볼트
+침바루
+빠르모트
+플라제스 | 하얀꽃
+파밀리쥐 | 세 식구
+눈여아
+캥카
+마휘핑 | 밀키루비
+대여르
+삼삼드래
+에이스번
+묘두기
+배바닐라
+샹델라
+초염몽
+패리퍼
+애프룡
+찌르성게
+애써르 | 암컷
+가디안
+꿈트렁
+몽얌나
+과미드라
+달코퀸
+피죤투
+모르페코
+라이츄 | 알로라
+고고트
+아마루르가
+왕구리
+샤크니아
+올리르바
+악비아르
+마휘핑 | 밀키바닐라
+마릴리
+나루림
+그우린차 | 범작
+헬가
+만마드
+냐오닉스 | 수컷
+데스판
+트리미앙 | 야생의 모습
+샤로다
+앗차키
+개굴닌자
+하마돈
+클래피
+윈디 | 히스이
+라우드본
+노보청
+하랑우탄
+쏘콘
+핫삼
+내던숭이
+블레이범
+캐스풍
+사다이사
+프테라
+대짱이
+창파나이트
+무장조
+불카모스
+거북손데스`;
+let pokemonList=[],scoutHistory=[],party=[null,null,null,null,null,null],graduated=[],shinyRate=4096,currentScoutId=null,randomSelectedIndex=null;
+let settings={partyDuplicate:false,graduationScope:"species",includeSpecial:false};
+let specialPokemon=[];
+let regulations=[{id:"base",name:"기본",additions:[],exclusions:[]}];
+let currentRegId="base";
+let activeChallenge=null,challengeHistory=[];
+let undoStack=[],redoStack=[],restoringHistory=false;
+const $=id=>document.getElementById(id);
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function parseList(text){return text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(line=>{let p=line.split("|");return{species:p[0].trim(),form:p.slice(1).join("|").trim()}}).filter(x=>x.species)}
+function key(p){return p?`${p.species}|${p.form||""}`:""}
+function label(p){return p?`${p.species}${p.form?` (${p.form})`:""}${p.shiny?" ✨":""}`:""}
+function now(){return new Date().toISOString()}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify({pokemonList,scoutHistory,party,graduated,shinyRate,currentScoutId,settings,specialPokemon,regulations,currentRegId,activeChallenge,challengeHistory}))}
+function load(){try{let d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");if(d){pokemonList=Array.isArray(d.pokemonList)?d.pokemonList:parseList(DEFAULT_LIST);scoutHistory=Array.isArray(d.scoutHistory)?d.scoutHistory:[];party=Array.isArray(d.party)&&d.party.length===6?d.party:[null,null,null,null,null,null];graduated=Array.isArray(d.graduated)?d.graduated:[];shinyRate=Number(d.shinyRate)>0?Number(d.shinyRate):4096;currentScoutId=d.currentScoutId||null;settings={...settings,...(d.settings||{})};specialPokemon=Array.isArray(d.specialPokemon)?d.specialPokemon:[];regulations=Array.isArray(d.regulations)&&d.regulations.length?d.regulations:regulations;currentRegId=d.currentRegId||regulations[0].id;activeChallenge=d.activeChallenge||null;challengeHistory=Array.isArray(d.challengeHistory)?d.challengeHistory:[]}else{pokemonList=parseList(DEFAULT_LIST)} }catch(e){console.error(e);pokemonList=parseList(DEFAULT_LIST)}$("pokemonListInput").value=pokemonList.map(x=>x.form?`${x.species} | ${x.form}`:x.species).join("\n");$("shinyRate").value=shinyRate}
+function state(){return{party:clone(party),graduated:clone(graduated)}}
+function begin(){if(restoringHistory)return;undoStack.push(state());redoStack=[];buttons()}
+function restore(s){restoringHistory=true;party=clone(s.party);graduated=clone(s.graduated);save();renderAll();restoringHistory=false}
+function undo(){if(!undoStack.length)return;redoStack.push(state());restore(undoStack.pop());buttons();msg("실행 취소했습니다.")}
+function redo(){if(!redoStack.length)return;undoStack.push(state());restore(redoStack.pop());buttons();msg("다시 실행했습니다.")}
+function buttons(){$("undoButton").disabled=!undoStack.length;$("redoButton").disabled=!redoStack.length}
+function completedTarget(p){return settings.graduationScope==="species"?graduated.includes(p.species):graduated.includes(key(p))}
+function addGraduated(p){let k=settings.graduationScope==="species"?p.species:key(p);if(!graduated.includes(k))graduated.push(k)}
+function eligiblePool(regId=currentRegId){let r=regulations.find(x=>x.id===regId)||regulations[0];let map=new Map();[...pokemonList,...(r.additions||[]),...(settings.includeSpecial?specialPokemon:[])].forEach(p=>{if(!p)return;let ex=(r.exclusions||[]).includes(p.species);if(ex||completedTarget(p))return;if(!settings.partyDuplicate&&party.some(q=>q&&key(q)===key(p)))return;if(!map.has(p.species))map.set(p.species,[]);map.get(p.species).push(p)});return map}
+function challengePool(){return activeChallenge&&activeChallenge.poolSnapshot?activeChallenge.poolSnapshot:null}
+function poolForScout(){if(activeChallenge&&activeChallenge.status!=="ended"){let map=new Map(challengePool().map(([s,arr])=>[s,arr]));for(let [species,arr] of map){let filtered=arr.filter(p=>!completedTarget(p)&&(settings.partyDuplicate||!party.some(q=>q&&key(q)===key(p))));if(filtered.length)map.set(species,filtered);else map.delete(species)}return map}return eligiblePool()}
+function performScout(){let map=poolForScout();if(map.size<10){msg(`현재 스카우트 가능한 종족이 ${map.size}종입니다. 10종 이상 필요합니다.`,true);return}let names=[...map.keys()],sel=[];for(let i=0;i<10;i++){let n=names.splice(Math.floor(Math.random()*names.length),1)[0],p=map.get(n)[Math.floor(Math.random()*map.get(n).length)];sel.push({...p,shiny:Math.floor(Math.random()*shinyRate)===0})}let r={id:id(),createdAt:now(),regulationId:activeChallenge?activeChallenge.regulationId:currentRegId,pokemon:sel};scoutHistory.unshift(r);currentScoutId=r.id;randomSelectedIndex=null;if(activeChallenge&&activeChallenge.status==="run")activeChallenge.stats.scouts++;save();renderAll();msg("새로운 10마리가 스카우트되었습니다.")}
+function randomPick(){if(!currentScoutId){msg("먼저 새로운 스카우트를 진행해주세요.",true);return}let r=scoutHistory.find(x=>x.id===currentScoutId);if(!r)return;randomSelectedIndex=Math.floor(Math.random()*r.pokemon.length);renderScout();let p=r.pokemon[randomSelectedIndex];msg(`🎯 ${randomSelectedIndex+1}번 — ${label(p)}이(가) 선택되었습니다.`)}
+function card(p,rid,pi){let c=document.createElement("div");c.className="pokemon-card"+(p.shiny?" shiny":"")+(rid===currentScoutId&&pi===randomSelectedIndex?" random-selected":"");c.draggable=true;c.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",JSON.stringify({rid,pi})));let n=document.createElement("div");n.className="pokemon-name";n.textContent=p.species;c.appendChild(n);let f=document.createElement("div");f.className="pokemon-form";f.textContent=p.form||"";c.appendChild(f);if(p.shiny){let s=document.createElement("div");s.className="shiny";s.textContent="✨ 색이 다른 포켓몬";c.appendChild(s)}if(rid===currentScoutId&&pi===randomSelectedIndex){let x=document.createElement("div");x.className="random-selected-label";x.textContent="🎯 선택됨";c.appendChild(x)}let a=document.createElement("div");a.className="card-actions";let b=document.createElement("button");b.className="green";b.textContent="지닌 포켓몬에 넣기";b.onclick=()=>addParty(rid,pi);a.appendChild(b);c.appendChild(a);return c}
+function renderScout(){let c=$("currentScout");c.innerHTML="";let r=scoutHistory.find(x=>x.id===currentScoutId);if(!r){c.innerHTML='<div class="empty">아직 스카우트 결과가 없습니다.</div>';return}r.pokemon.forEach((p,i)=>c.appendChild(card(p,r.id,i)))}
+function hydrate(p){let h=activeChallenge?.pokemonStats?.[key(p)];return{species:p.species,form:p.form,shiny:!!p.shiny,wins:h?.wins||0,losses:h?.losses||0,lossStreak:h?.lossStreak||0}}
+function addParty(rid,pi,slotOverride=null){let r=scoutHistory.find(x=>x.id===rid),p=r?.pokemon[pi];if(!p)return;if(!settings.partyDuplicate&&party.some(q=>q&&key(q)===key(p))){msg("현재 파티에 같은 포켓몬이 있어 추가할 수 없습니다.",true);return}let slot=slotOverride===null?Number($("targetSlot").value):slotOverride;if(slot===-1)slot=party.findIndex(x=>x===null);if(slot<0){msg("빈 파티 슬롯이 없습니다.",true);return}begin();party[slot]=hydrate(p);if(activeChallenge?.status==="run"){activeChallenge.stats.recruits++;if(p.shiny)activeChallenge.stats.shiny++}save();renderAll();msg(`${label(p)}을(를) ${slot+1}번 슬롯에 넣었습니다.`)}
+function dropTo(rid,pi,slot){addParty(rid,pi,slot)}
+function release(slot,fromReroll=false){let p=party[slot];if(!p)return;begin();party[slot]=null;if(activeChallenge?.status==="run"&&!fromReroll)activeChallenge.stats.releases++;save();renderAll();msg(`${label(p)}을(를) 방출했습니다.`)}
+function graduate(slot,fromReroll=false){let p=party[slot];if(!p)return;begin();addGraduated(p);party[slot]=null;if(activeChallenge?.status==="run"&&!fromReroll)activeChallenge.stats.graduations++;save();renderAll();msg(`${label(p)}이(가) 졸업했습니다.`)}
+function recordBattle(slot,type){if(!activeChallenge||activeChallenge.status!=="run"){msg("챌린지가 진행 중일 때만 승패가 기록됩니다.",true);return}let p=party[slot];if(!p)return;let k=key(p),s=activeChallenge.pokemonStats[k]||{wins:0,losses:0,lossStreak:0};if(type==="win"){s.wins++;s.lossStreak=0;p.wins=s.wins;p.losses=s.losses;p.lossStreak=0}else{s.losses++;s.lossStreak++;p.wins=s.wins;p.losses=s.losses;p.lossStreak=s.lossStreak}activeChallenge.pokemonStats[k]=s;save();renderParty();checkThresholds(p,slot);msg(`${label(p)} — ${type==="win"?"승리":"패배"} 기록을 추가했습니다.`)}
+function checkThresholds(p,slot){let c=activeChallenge;if(c.winRule.enabled&&p.wins>=c.winRule.threshold){msg(`🏆 ${label(p)}이(가) ${c.winRule.threshold}승을 달성했습니다. 설정에 따라 ${c.winRule.action==="graduate"?"졸업":"방출"}할 수 있습니다.`)}if(c.lossRule.enabled&&p.lossStreak>=c.lossRule.threshold){msg(`⚠️ ${label(p)}이(가) ${c.lossRule.threshold}연패를 달성했습니다. 설정에 따라 ${c.lossRule.action==="graduate"?"졸업":"방출"}할 수 있습니다.`)}}
+function renderParty(){let c=$("partyGrid");c.innerHTML="";party.forEach((p,i)=>{let s=document.createElement("div");s.className="party-slot"+(p?" filled":"");s.ondragover=e=>{e.preventDefault();s.classList.add("drag-over")};s.ondragleave=()=>s.classList.remove("drag-over");s.ondrop=e=>{e.preventDefault();s.classList.remove("drag-over");try{let d=JSON.parse(e.dataTransfer.getData("text/plain"));dropTo(d.rid,d.pi,i)}catch{}};let no=document.createElement("div");no.className="party-number";no.textContent=`${i+1}번 슬롯`;s.appendChild(no);if(!p){let e=document.createElement("div");e.className="empty";e.textContent="비어 있음";s.appendChild(e)}else{let n=document.createElement("div");n.className="party-name";n.textContent=p.species;s.appendChild(n);let f=document.createElement("div");f.className="party-form";f.textContent=p.form||"";s.appendChild(f);if(p.shiny){let x=document.createElement("div");x.className="shiny";x.textContent="✨ 색이 다른 포켓몬";s.appendChild(x)}if(activeChallenge){let st=document.createElement("div");st.className="mini";st.textContent=`승 ${p.wins||0} · 패 ${p.losses||0} · ${p.lossStreak||0}연패`;s.appendChild(st);let ba=document.createElement("div");ba.className="battle-actions";let w=document.createElement("button");w.className="green";w.textContent="승리";w.onclick=()=>recordBattle(i,"win");let l=document.createElement("button");l.className="danger";l.textContent="패배";l.onclick=()=>recordBattle(i,"loss");ba.append(w,l);s.appendChild(ba)}let a=document.createElement("div");a.className="party-actions";let r=document.createElement("button");r.className="danger";r.textContent="방출";r.onclick=()=>release(i);let g=document.createElement("button");g.className="graduate";g.textContent="졸업";g.onclick=()=>graduate(i);a.append(r,g);s.appendChild(a)}c.appendChild(s)})}
+function executeReroll(slot){let c=activeChallenge;if(!c||c.status!=="run"){msg("진행 중인 챌린지에서만 리롤할 수 있습니다.",true);return}if(c.rerolls<=0){msg("남은 리롤 횟수가 없습니다.",true);return}let p=party[slot];if(!p){c.pendingReroll=null;renderReroll();return}if(!confirm(`${label(p)}을(를) 리롤 처리할까요?\n처리 방식: ${c.rerollRule==="graduate"?"졸업":"방출"}`))return;begin();if(c.rerollRule==="graduate")addGraduated(p);party[slot]=null;c.rerolls--;c.stats.rerolls++;c.pendingReroll=null;save();renderAll();msg(`${label(p)}의 리롤 처리가 완료되었습니다. 리롤 1회를 사용했습니다.`)}
+function randomRerollTarget(){let c=activeChallenge;if(!c||c.status!=="run"||c.rerolls<=0||c.pendingReroll!==null)return;if(!party.some(Boolean)){msg("리롤할 포켓몬이 없습니다.",true);return}let slots=party.map((p,i)=>p?i:-1).filter(i=>i>=0);c.pendingReroll=slots[Math.floor(Math.random()*slots.length)];renderReroll();msg(`🎯 ${label(party[c.pendingReroll])}이(가) 리롤 대상으로 선택되었습니다.`)}
+function renderReroll(){let c=$("rerollPanel");c.innerHTML="";if(!activeChallenge||activeChallenge.status==="ended")return;let p=document.createElement("div");p.className="panel";p.innerHTML=`<b>🔄 리롤</b><div style="margin-top:5px">남은 횟수: <b>${activeChallenge.rerolls}</b> · 처리 방식: ${activeChallenge.rerollRule==="graduate"?"졸업":"방출"}</div>`;let a=document.createElement("div");a.className="controls";let d=document.createElement("button");d.textContent="직접 선택";d.disabled=activeChallenge.rerolls<=0;d.onclick=()=>{let opts=party.map((x,i)=>x?`${i+1}번 — ${label(x)}`:null).filter(Boolean);if(!opts.length)return;let s=prompt("리롤할 포켓몬의 슬롯 번호를 입력하세요.\n\n"+opts.join("\n"));let i=Number(s)-1;if(i>=0&&i<6&&party[i]){activeChallenge.pendingReroll=i;renderReroll()}else if(s!==null)msg("올바른 슬롯 번호가 아닙니다.",true)};let r=document.createElement("button");r.className="orange";r.textContent="무작위 선택";r.disabled=activeChallenge.rerolls<=0||activeChallenge.pendingReroll!==null;r.onclick=randomRerollTarget;a.append(d,r);p.appendChild(a);if(activeChallenge.pendingReroll!==null){let q=document.createElement("div");q.className="pending-target";q.innerHTML=`🎯 리롤 대상<br><b>${label(party[activeChallenge.pendingReroll])}</b>`;let ca=document.createElement("div");ca.className="controls";let cancel=document.createElement("button");cancel.className="secondary";cancel.textContent="취소";cancel.onclick=()=>{activeChallenge.pendingReroll=null;save();renderReroll()};let go=document.createElement("button");go.className="danger";go.textContent="리롤 실행";go.onclick=()=>executeReroll(activeChallenge.pendingReroll);ca.append(cancel,go);q.appendChild(ca);p.appendChild(q)}c.appendChild(p)}
+function challengePoolSnapshot(regId){let map=eligiblePool(regId);return [...map.entries()].map(([s,a])=>[s,clone(a)])}
+function startChallenge(){if(activeChallenge&&activeChallenge.status!=="ended"){msg("이미 진행 중인 챌린지가 있습니다.",true);return}let name=$("challengeName").value.trim();if(!name){msg("챌린지 이름을 입력해주세요.",true);return}let reg=$("challengeReg").value, pool=challengePoolSnapshot(reg);if(pool.length<10){msg("선택한 레귤레이션에서 스카우트 가능한 종족이 10종 미만입니다.",true);return}activeChallenge={id:id(),name,mode:$("challengeMode").value,regulationId:reg,poolSnapshot:pool,status:"run",startedAt:now(),endedAt:null,rerolls:Number($("initialRerolls").value)||0,rerollRule:$("rerollRule").value,pendingReroll:null,stats:{scouts:0,recruits:0,releases:0,graduations:0,shiny:0,rerolls:0},pokemonStats:{},missions:[],completedMissions:[],winRule:{enabled:$("winRuleEnabled").checked,threshold:Number($("winThreshold").value)||7,action:$("winAction").value},lossRule:{enabled:$("lossRuleEnabled").checked,threshold:Number($("lossThreshold").value)||3,action:$("lossAction").value}};save();renderAll();msg(`「${name}」 챌린지를 시작했습니다.`)}
+function pauseChallenge(){if(!activeChallenge)return;activeChallenge.status=activeChallenge.status==="run"?"pause":"run";save();renderAll();msg(activeChallenge.status==="pause"?"챌린지를 일시정지했습니다.":"챌린지를 재개했습니다.")}
+function endChallenge(){if(!activeChallenge)return;if(!confirm(`「${activeChallenge.name}」 챌린지를 종료할까요?`))return;activeChallenge.status="ended";activeChallenge.endedAt=now();challengeHistory.unshift(clone(activeChallenge));activeChallenge=null;save();renderAll();msg("챌린지를 종료하고 기록을 저장했습니다.")}
+function effectText(e){if(!e||e.type==="none")return"없음";if(e.type==="custom")return`✏️ ${e.text||"직접 입력"}`;if(e.type==="reroll")return`🎟️ 리롤권 ${e.n>=0?"+":""}${e.n}`;if(e.type==="graduate")return`🎓 포켓몬 졸업 · ${e.target==="random"?"무작위 선택":"직접 선택"}`;if(e.type==="release")return`🚪 포켓몬 방출 · ${e.target==="random"?"무작위 선택":"직접 선택"}`;if(e.type==="allreroll")return"🔄 전원 리롤";return""}
+function effectForm(prefix){return `<div class="field"><label>${prefix}</label><select id="${prefix}Type"><option value="none">없음</option><option value="reroll">🎟️ 리롤권 추가/차감</option><option value="graduate">🎓 포켓몬 졸업</option><option value="release">🚪 포켓몬 방출</option><option value="allreroll">🔄 전원 리롤</option><option value="custom">✏️ 직접 입력</option></select><div id="${prefix}Extra"></div></div>`}
+function bindEffect(prefix){let t=$(prefix+"Type"),x=$(prefix+"Extra");function r(){let v=t.value;x.innerHTML="";if(v==="reroll")x.innerHTML='<input id="'+prefix+'N" type="number" value="1" min="1">';if(v==="graduate"||v==="release")x.innerHTML='<select id="'+prefix+'Target"><option value="direct">직접 선택</option><option value="random">무작위 선택</option></select>';if(v==="custom")x.innerHTML='<input id="'+prefix+'Text" placeholder="직접 입력한 효과">'}t.onchange=r;r()}
+function readEffect(prefix,sign){let type=$(prefix+"Type").value;if(type==="none")return{type};if(type==="reroll")return{type,n:(Number($(prefix+"N").value)||0)*sign};if(type==="graduate"||type==="release")return{type,target:$(prefix+"Target").value};if(type==="custom")return{type,text:$(prefix+"Text").value};return{type}}
+function addMission(){if(!activeChallenge){msg("챌린지를 먼저 시작해주세요.",true);return}let name=$("missionName").value.trim(),condition=$("missionCondition").value.trim();if(!name||!condition){msg("미션 이름과 달성 조건을 입력해주세요.",true);return}activeChallenge.missions.push({id:id(),name,condition,reward:readEffect("reward",1),penalty:readEffect("penalty",-1),createdAt:now()});save();renderChallenge();msg("미션을 추가했습니다.")}
+function editMission(mid){let m=activeChallenge?.missions.find(x=>x.id===mid);if(!m)return;let n=prompt("미션 이름",m.name);if(n===null)return;let c=prompt("달성 조건",m.condition);if(c===null)return;m.name=n.trim()||m.name;m.condition=c.trim()||m.condition;save();renderChallenge()}
+function deleteMission(mid){let i=activeChallenge?.missions.findIndex(x=>x.id===mid);if(i<0)return;if(!confirm("이 미션을 삭제할까요?"))return;activeChallenge.missions.splice(i,1);save();renderChallenge()}
+function choosePartyTarget(action,target){let slots=party.map((p,i)=>p?i:-1).filter(i=>i>=0);if(!slots.length)return null;if(target==="random")return slots[Math.floor(Math.random()*slots.length)];let s=prompt("대상 슬롯 번호를 입력하세요.\n"+slots.map(i=>`${i+1}번 — ${label(party[i])}`).join("\n"));let i=Number(s)-1;return slots.includes(i)?i:null}
+function applyEffect(e){if(!e||e.type==="none")return;if(e.type==="reroll"){activeChallenge.rerolls=Math.max(0,activeChallenge.rerolls+(e.n||0));return}if(e.type==="custom")return;if(e.type==="allreroll"){let slots=party.map((p,i)=>p?i:-1).filter(i=>i>=0);if(!slots.length)return;if(!confirm(`현재 ${slots.length}마리를 전원 리롤 처리할까요?`))return;begin();slots.forEach(i=>{let p=party[i];if(activeChallenge.rerollRule==="graduate")addGraduated(p);party[i]=null;activeChallenge.stats.rerolls++});return}let slot=choosePartyTarget(e.action,e.target);if(slot===null)return;begin();let p=party[slot];if(!p)return;if(e.type==="graduate")addGraduated(p);party[slot]=null;if(e.type==="graduate")activeChallenge.stats.graduations++;if(e.type==="release")activeChallenge.stats.releases++}
+function completeMission(mid,outcome){let c=activeChallenge;if(!c||c.status!=="run"){msg("챌린지가 진행 중일 때만 미션을 완료 처리할 수 있습니다.",true);return;}let i=c.missions.findIndex(m=>m.id===mid);if(i<0)return;let m=c.missions[i];if(!confirm(`「${m.name}」을(를) ${outcome==="success"?"달성":"실패"} 처리할까요?\n\n보상/패널티가 적용될 수 있습니다.`))return;let effect=outcome==="success"?m.reward:m.penalty;applyEffect(effect);c.completedMissions.unshift({...clone(m),outcome,completedAt:now(),appliedEffect:clone(effect)});c.missions.splice(i,1);save();renderAll();msg(`미션 「${m.name}」을(를) ${outcome==="success"?"달성":"실패"} 처리했습니다.`)}
+function renderChallenge(){let c=$("challengePanel");c.innerHTML="";if(!activeChallenge){c.innerHTML=`<div class="grid2"><div class="field"><label>챌린지 이름</label><input id="challengeName" placeholder="예: 싱글 M-B 첫 도전"></div><div class="field"><label>배틀 모드</label><select id="challengeMode"><option>싱글</option><option>더블</option></select></div><div class="field"><label>레귤레이션</label><select id="challengeReg"></select></div><div class="field"><label>기본 리롤 횟수</label><input id="initialRerolls" type="number" min="0" value="2"></div><div class="field"><label>리롤 처리 방식</label><select id="rerollRule"><option value="release">방출</option><option value="graduate">졸업</option></select></div></div><div class="grid2" style="margin-top:9px"><div class="panel"><b>승리 규칙</b><label style="display:block;margin-top:6px"><input id="winRuleEnabled" type="checkbox" checked> 적용</label><div class="controls" style="margin-top:5px"><input id="winThreshold" type="number" min="1" value="7" style="width:75px">승 → <select id="winAction"><option value="graduate">졸업</option><option value="release">방출</option></select></div></div><div class="panel"><b>연패 규칙</b><label style="display:block;margin-top:6px"><input id="lossRuleEnabled" type="checkbox" checked> 적용</label><div class="controls" style="margin-top:5px"><input id="lossThreshold" type="number" min="1" value="3" style="width:75px">연패 → <select id="lossAction"><option value="graduate">졸업</option><option value="release">방출</option></select></div></div></div><button id="startChallengeButton" class="green" style="margin-top:9px">🏁 챌린지 시작</button><div class="hint">챌린지 시작 시 실제 적용 풀을 저장합니다. 시작 후 레귤레이션은 변경되지 않습니다.</div>`;fillRegSelect($("challengeReg"),false);$("challengeReg").value=currentRegId;return}let st=activeChallenge.status;let sc=activeChallenge.stats;let h=`<div class="controls"><span class="status ${st==='run'?'run':st==='pause'?'pause':'end'}">${st==='run'?'🟢 진행 중':st==='pause'?'⏸️ 일시정지':'⚫ 종료'}</span><b>${activeChallenge.name}</b><span>· ${activeChallenge.mode}</span></div><div class="hint">레귤레이션: ${regulations.find(r=>r.id===activeChallenge.regulationId)?.name||"기록된 레귤레이션"}</div><div class="stat-grid" style="margin-top:8px"><div class="stat">스카우트<b>${sc.scouts}</b></div><div class="stat">영입<b>${sc.recruits}</b></div><div class="stat">방출<b>${sc.releases}</b></div><div class="stat">졸업<b>${sc.graduations}</b></div><div class="stat">색이 다른 포켓몬<b>${sc.shiny}</b></div><div class="stat">리롤<b>${sc.rerolls}</b></div></div><div class="controls" style="margin-top:8px"><button id="pauseChallengeButton" class="orange">${st==='pause'?'▶️ 재개':'⏸️ 일시정지'}</button><button id="endChallengeButton" class="danger">챌린지 종료</button></div>`;h+=`<div class="panel"><h3>📝 미션</h3><div id="missionList"></div><div class="grid2"><div class="field"><label>미션 이름</label><input id="missionName" placeholder="예: 특정 포켓몬으로 3승"></div><div class="field"><label>달성 조건</label><input id="missionCondition" placeholder="자유롭게 입력"></div></div><div class="grid2" style="margin-top:8px">${effectForm("reward")} ${effectForm("penalty")}</div><div class="hint">직접 입력한 효과는 시스템이 자동 적용하지 않고 기록만 남깁니다.</div><button id="addMissionButton" class="green" style="margin-top:8px">미션 추가</button></div>`;c.innerHTML=h;let ml=$("missionList");if(!activeChallenge.missions.length)ml.innerHTML='<div class="empty">진행 중인 미션이 없습니다.</div>';activeChallenge.missions.forEach(m=>{let x=document.createElement("div");x.className="mission";x.innerHTML=`<div class="mission-title">${escapeHtml(m.name)}</div><div class="mission-condition">${escapeHtml(m.condition)}</div><div class="mission-effects">성공: ${escapeHtml(effectText(m.reward))}<br>실패: ${escapeHtml(effectText(m.penalty))}</div>`;let b=document.createElement("div");b.className="mission-buttons";let s=document.createElement("button");s.className="green";s.textContent="달성";s.onclick=()=>completeMission(m.id,"success");let f=document.createElement("button");f.className="danger";f.textContent="실패";f.onclick=()=>completeMission(m.id,"failure");let e=document.createElement("button");e.className="secondary";e.textContent="수정";e.onclick=()=>editMission(m.id);let d=document.createElement("button");d.className="danger";d.textContent="삭제";d.onclick=()=>deleteMission(m.id);b.append(s,f,e,d);x.appendChild(b);ml.appendChild(x)});bindEffect("reward");bindEffect("penalty");$("pauseChallengeButton").onclick=pauseChallenge;$("endChallengeButton").onclick=endChallenge;$("addMissionButton").onclick=addMission}
+function fillRegSelect(sel,editor=true){sel.innerHTML="";regulations.forEach(r=>{let o=document.createElement("option");o.value=r.id;o.textContent=r.name;sel.appendChild(o)});if(editor)sel.value=currentRegId}
+function renderRegulation(){fillRegSelect($("currentRegulation"));fillRegSelect($("regSelect"));$("currentRegulation").value=currentRegId;let r=regulations.find(x=>x.id===currentRegId)||regulations[0];$("regName").value=r.name;$("regAdd").value=(r.additions||[]).map(p=>p.form?`${p.species} | ${p.form}`:p.species).join("\n");$("regExclude").value=(r.exclusions||[]).join("\n");let locked=!!(activeChallenge&&activeChallenge.status!=="ended");["currentRegulation","regSelect","regName","regAdd","regExclude","saveRegButton","newRegButton","deleteRegButton"].forEach(x=>$(x).disabled=locked)}
+function saveReg(){let r=regulations.find(x=>x.id===$("regSelect").value);if(!r)return;r.name=$("regName").value.trim()||r.name;r.additions=parseList($("regAdd").value);r.exclusions=$("regExclude").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);currentRegId=r.id;save();renderRegulation();renderScout();msg(`레귤레이션 「${r.name}」을 저장했습니다.`)}
+function newReg(){let r={id:id(),name:"새 레귤레이션",additions:[],exclusions:[]};regulations.push(r);currentRegId=r.id;save();renderRegulation()}
+function deleteReg(){if(regulations.length<=1){msg("최소 하나의 레귤레이션은 필요합니다.",true);return}let i=regulations.findIndex(r=>r.id===$("regSelect").value);if(i<0)return;if(!confirm(`「${regulations[i].name}」을 삭제할까요?`))return;regulations.splice(i,1);currentRegId=regulations[0].id;save();renderRegulation()}
+function renderSpecial(){let c=$("specialList");c.innerHTML="";specialPokemon.forEach((p,i)=>{let t=document.createElement("div");t.className="tag special";t.textContent=label(p);t.onclick=()=>{specialPokemon.splice(i,1);save();renderSpecial()};c.appendChild(t)});$("specialInput").value=specialPokemon.map(p=>p.form?`${p.species} | ${p.form}`:p.species).join("\n")}
+function saveSpecial(){specialPokemon=parseList($("specialInput").value);save();renderSpecial();msg("특수 포켓몬 목록을 저장했습니다.")}
+function renderSettings(){$("partyDuplicate").value=String(settings.partyDuplicate);$("graduationScope").value=settings.graduationScope;$("includeSpecial").value=String(settings.includeSpecial)}
+function saveSettings(){settings.partyDuplicate=$("partyDuplicate").value==="true";settings.graduationScope=$("graduationScope").value;settings.includeSpecial=$("includeSpecial").value==="true";save();renderAll();msg("설정을 저장했습니다.")}
+function renderHistory(){let c=$("historyList");c.innerHTML="";if(!scoutHistory.length){c.innerHTML='<div class="empty">저장된 스카우트 기록이 없습니다.</div>';return}scoutHistory.forEach((r,i)=>{let item=document.createElement("div");item.className="history-item";let h=document.createElement("div");h.className="history-header";h.innerHTML=`<span class="history-title">스카우트 #${scoutHistory.length-i}</span><span class="history-date">${fmt(r.createdAt)}</span>`;let b=document.createElement("div");b.className="history-body";let g=document.createElement("div");g.className="history-pokemon-list";r.pokemon.forEach((p,pi)=>{let x=document.createElement("div");x.className="history-pokemon";x.innerHTML=`<b>${escapeHtml(p.species)}</b><div class="mini">${escapeHtml(p.form||"")}</div>${p.shiny?'<div class="shiny">✨ 색이 다른 포켓몬</div>':""}`;let bt=document.createElement("button");bt.className="green";bt.textContent="파티에 넣기";bt.onclick=()=>addParty(r.id,pi);x.appendChild(bt);g.appendChild(x)});b.appendChild(g);h.onclick=()=>b.classList.toggle("open");item.append(h,b);c.appendChild(item)})}
+function renderGraduated(){let c=$("graduatedList");c.innerHTML="";if(!graduated.length){c.innerHTML='<div class="empty">졸업한 포켓몬이 없습니다.</div>';return}graduated.forEach(x=>{let t=document.createElement("div");t.className="graduated-item";t.textContent="🎓 "+x;c.appendChild(t)})}
+function resetGraduated(){if(!graduated.length)return;begin();graduated=[];save();renderAll();msg("졸업 리스트를 초기화했습니다.")}
+function fullReset(){if(!confirm("지닌 포켓몬과 졸업 리스트를 모두 초기화할까요?\n\n스카우트 기록과 포켓몬 목록, 설정, 챌린지 기록은 유지됩니다."))return;begin();party=[null,null,null,null,null,null];graduated=[];save();renderAll();msg("지닌 포켓몬과 졸업 리스트를 초기화했습니다.")}
+function clearHistory(){if(!scoutHistory.length)return;if(!confirm("모든 스카우트 기록을 삭제할까요?"))return;scoutHistory=[];currentScoutId=null;randomSelectedIndex=null;save();renderAll();msg("스카우트 기록을 모두 삭제했습니다.")}
+function saveList(){let p=parseList($("pokemonListInput").value);if(p.length<10){listMsg("최소 10개 이상의 포켓몬 항목을 입력해주세요.",true);return}pokemonList=p;save();listMsg(`${p.length}개의 포켓몬 항목을 저장했습니다.`)}
+function saveRate(){let n=Number($("shinyRate").value);if(!Number.isInteger(n)||n<1){msg("색이 다른 포켓몬 확률은 1 이상의 정수여야 합니다.",true);$("shinyRate").value=shinyRate;return}shinyRate=n;save();msg(`색이 다른 포켓몬 확률을 1/${n}로 저장했습니다.`)}
+function stats(){let c=$("statsPanel");c.innerHTML="";let all=[...challengeHistory];if(activeChallenge)all.unshift(activeChallenge);if(!all.length){c.innerHTML='<div class="empty">아직 챌린지 기록이 없습니다.</div>';return}all.forEach((x,i)=>{let p=document.createElement("div");p.className="panel";let s=x.stats||{};p.innerHTML=`<b>${escapeHtml(x.name)}</b> · ${x.mode} · ${regulations.find(r=>r.id===x.regulationId)?.name||"저장된 레귤레이션"}<div class="mini">${fmt(x.startedAt)}${x.endedAt?` ~ ${fmt(x.endedAt)}`:" · 진행 중"}</div><div class="stat-grid" style="margin-top:7px"><div class="stat">스카우트<b>${s.scouts||0}</b></div><div class="stat">영입<b>${s.recruits||0}</b></div><div class="stat">방출<b>${s.releases||0}</b></div><div class="stat">졸업<b>${s.graduations||0}</b></div><div class="stat">색이 다른 포켓몬<b>${s.shiny||0}</b></div><div class="stat">리롤<b>${s.rerolls||0}</b></div></div>`;if(x.completedMissions?.length){let m=document.createElement("div");m.style.marginTop="8px";m.innerHTML="<b>완료된 미션</b>";x.completedMissions.forEach(q=>{let z=document.createElement("div");z.className="mini";z.innerHTML=`${q.outcome==="success"?'✅':'❌'} ${escapeHtml(q.name)} — ${q.outcome==="success"?'달성':'실패'} · ${escapeHtml(effectText(q.appliedEffect))}`;m.appendChild(z)});p.appendChild(m)}if(x.pokemonStats){let rows=Object.entries(x.pokemonStats);if(rows.length){let t=document.createElement("table");t.className="tablelike";t.innerHTML="<tr><th>포켓몬</th><th>승</th><th>패</th><th>연패</th></tr>";rows.forEach(([k,v])=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${escapeHtml(k.replace("|"," "))}</td><td>${v.wins||0}</td><td>${v.losses||0}</td><td>${v.lossStreak||0}</td>`;t.appendChild(tr)});p.appendChild(t)}}c.appendChild(p)})}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(x){let d=new Date(x);return Number.isNaN(d.getTime())?"":d.toLocaleString("ko-KR",{year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}
+function msg(t,e=false){let x=$("scoutMessage");x.className="message";x.style.color=e?"#b00020":"#222";x.textContent=t}
+function listMsg(t,e=false){let x=$("listMessage");x.className="message";x.style.color=e?"#b00020":"#222";x.textContent=t}
+function renderAll(){renderChallenge();renderParty();renderScout();renderHistory();renderGraduated();renderRegulation();renderSpecial();renderSettings();stats();buttons();if(activeChallenge&&activeChallenge.status!=="ended")renderReroll()}
+function init(){load();$("scoutButton").onclick=performScout;$("randomPickButton").onclick=randomPick;$("saveRateButton").onclick=saveRate;$("saveListButton").onclick=saveList;$("clearHistoryButton").onclick=clearHistory;$("resetGraduatedButton").onclick=resetGraduated;$("fullResetButton").onclick=fullReset;$("undoButton").onclick=undo;$("redoButton").onclick=redo;$("currentRegulation").onchange=e=>{if(activeChallenge&&activeChallenge.status!=="ended"){e.target.value=activeChallenge.regulationId;return}currentRegId=e.target.value;save();renderRegulation()};$("regSelect").onchange=e=>{currentRegId=e.target.value;renderRegulation()};$("saveRegButton").onclick=saveReg;$("newRegButton").onclick=newReg;$("deleteRegButton").onclick=deleteReg;$("saveSpecialButton").onclick=saveSpecial;$("partyDuplicate").onchange=saveSettings;$("graduationScope").onchange=saveSettings;$("includeSpecial").onchange=saveSettings;renderAll();$("startChallengeButton")?.addEventListener("click",startChallenge);}
+// renderChallenge() creates the start button dynamically, so delegate its click here.
+document.addEventListener("click",e=>{if(e.target&&e.target.id==="startChallengeButton")startChallenge()});document.addEventListener("DOMContentLoaded",init);
+</script></body></html>
